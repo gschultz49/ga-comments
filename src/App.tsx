@@ -1,7 +1,7 @@
-import React, { useRef, useState } from "react";
-import logo from "./logo.svg";
+import React from "react";
+// import logo from "./logo.svg";
 import "./App.css";
-import Test from "./comp";
+// import Test from "./comp";
 import "./App.css";
 
 import firebase from "firebase/app";
@@ -10,7 +10,7 @@ import "firebase/auth";
 import "firebase/analytics";
 
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useCollectionData } from "react-firebase-hooks/firestore";
+// import { useCollectionData } from "react-firebase-hooks/firestore";
 import SignIn from "./Signin";
 import SignOut from "./Signout";
 import ClassPage from "./Components/ClassPage";
