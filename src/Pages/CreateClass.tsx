@@ -144,8 +144,23 @@ const AddStudent = ({
       gender: GENDER_DEFAULT,
     },
     validate,
-    onSubmit: (values) => {
+    onSubmit: (values, { resetForm }) => {
       alert(JSON.stringify(values, null, 2));
+
+      setStudents((prevStudents) => [
+        ...prevStudents,
+        {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          gender: values.gender,
+          id: `${Math.random()}`,
+        },
+      ]);
+      resetForm();
+
+      //   setFirstName(FIRST_NAME_DEFAULT);
+      //   setLastName(LAST_NAME_DEFAULT);
+      //   setGender(GENDER_DEFAULT);
     },
   });
   const [isEditable, setIsEditable] = useState(false);
@@ -165,7 +180,9 @@ const AddStudent = ({
             value={formik.values.firstName}
           />
           {formik.touched.firstName && formik.errors.firstName ? (
-            <div><InlineError text={formik.errors.firstName}/></div>
+            <div>
+              <InlineError text={formik.errors.firstName} />
+            </div>
           ) : null}
         </div>
         <div>
@@ -180,7 +197,10 @@ const AddStudent = ({
             value={formik.values.lastName}
           />
           {formik.touched.lastName && formik.errors.lastName ? (
-            <div> <InlineError text={formik.errors.lastName}/></div>
+            <div>
+              {" "}
+              <InlineError text={formik.errors.lastName} />
+            </div>
           ) : null}
         </div>
         <div>
@@ -197,7 +217,9 @@ const AddStudent = ({
               <option value="Other">Other</option>
             </select>
             {formik.touched.gender && formik.errors.gender ? (
-              <div><InlineError text={formik.errors.gender}/></div>
+              <div>
+                <InlineError text={formik.errors.gender} />
+              </div>
             ) : null}
           </div>
         </div>
