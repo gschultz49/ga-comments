@@ -23,7 +23,6 @@ const ClassList = ({ teacherId }: { teacherId: string | undefined }) => {
       {error && <strong>Error: {JSON.stringify(error)}</strong>}
       {loading && <span>Loading...</span>}
       <CreateNewClassCard />
-
       {classes?.map((c) => (
         <ClassCardComponent name={c.name} uid={c.uid} classID={c.classID} />
       ))}
@@ -64,7 +63,6 @@ const CreateNewClassCard = () => {
 const ClassCardComponent = ({ name, uid, classID }: ClassCard) => {
   let { url } = useRouteMatch();
   let toPath = `${url}class/${uid}`;
-  console.log(toPath);
   return (
     <Link to={toPath}>
       <CardWrapper>

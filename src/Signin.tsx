@@ -4,9 +4,7 @@ import { auth } from "./App";
 export default function SignIn() {
   const signInWithGoogle = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
-    console.log("pre",auth);
     auth.signInWithPopup(provider);
-    console.log("post", auth);
   };
 
   return (

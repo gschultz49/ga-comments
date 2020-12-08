@@ -88,11 +88,9 @@ function Home() {
         */}
         <Switch>
           <Route path={`/class/createClass`}>
-            <p>in create class</p>
             <CreateClass />
           </Route>
           <Route path={`/class/:classID`}>
-            <p>in view class</p>
             <ViewClass />
           </Route>
           <Route exact path="/">
