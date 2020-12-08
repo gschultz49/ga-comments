@@ -3,8 +3,15 @@ import React from "react";
 import { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../App";
-// import * as Yup from "yup";
-import { useFormik } from "formik";
+import * as Yup from "yup";
+import {
+  ErrorMessage,
+  Field,
+  Form,
+  Formik,
+  FormikProps,
+  useFormik,
+} from "formik";
 
 const CreateClass = () => {
   const [user] = useAuthState(auth);
@@ -103,31 +110,44 @@ const StudentRow = ({
 
 const FIRST_NAME_DEFAULT = "";
 const LAST_NAME_DEFAULT = "";
-const GENDER_DEFAULT = "-1";
+const GENDER_DEFAULT = "";
 
-const validate = (values: any) => {
-  const errors: any = {};
-  if (!values.firstName) {
-    errors.firstName = "Required";
-  } else if (values.firstName.length < 2) {
-    errors.firstName = "Must be 2 characters or greater";
-  }
-  if (!values.lastName) {
-    errors.lastName = "Required";
-  } else if (values.lastName.length < 2) {
-    errors.lastName = "Must be 2 characters or greater";
-  }
+// const validate = (values: any) => {
+//   const errors: any = {};
+//   if (!values.firstName) {
+//     errors.firstName = "Required";
+//   } else if (values.firstName.length < 2) {
+//     errors.firstName = "Must be 2 characters or greater";
+//   }
+//   if (!values.lastName) {
+//     errors.lastName = "Required";
+//   } else if (values.lastName.length < 2) {
+//     errors.lastName = "Must be 2 characters or greater";
+//   }
 
-  if (values.gender == GENDER_DEFAULT) {
-    errors.gender = "Select Gender";
-  }
+//   if (values.gender == GENDER_DEFAULT) {
+//     errors.gender = "Select Gender";
+//   }
 
-  return errors;
-};
+//   return errors;
+// };
 
 export const InlineError = ({ text }: { text: string }) => (
   <i className="text-red-700">{text}</i>
 );
+
+const NewStudentSchema = Yup.object().shape({
+  firstName: Yup.string()
+    .min(2, "Too Short!")
+    .max(70, "Too Long!")
+    .required("Required"),
+  lastName: Yup.string()
+    .min(2, "Too Short!")
+    .max(70, "Too Long!")
+    .required("Required"),
+  gender: Yup.string().ensure().required("Required"),
+  //   email: Yup.string().email("Invalid email").required("Required"),
+});
 
 const AddStudent = ({
   setStudents,
@@ -137,96 +157,96 @@ const AddStudent = ({
   //   const [firstName, setFirstName] = useState(FIRST_NAME_DEFAULT);
   //   const [lastName, setLastName] = useState(LAST_NAME_DEFAULT);
   //   const [gender, setGender] = useState(GENDER_DEFAULT);
-  const formik = useFormik({
-    initialValues: {
-      firstName: FIRST_NAME_DEFAULT,
-      lastName: LAST_NAME_DEFAULT,
-      gender: GENDER_DEFAULT,
-    },
-    validate,
-    onSubmit: (values, { resetForm }) => {
-      alert(JSON.stringify(values, null, 2));
 
-      setStudents((prevStudents) => [
-        ...prevStudents,
-        {
-          firstName: values.firstName,
-          lastName: values.lastName,
-          gender: values.gender,
-          id: `${Math.random()}`,
-        },
-      ]);
-      resetForm();
-
-      //   setFirstName(FIRST_NAME_DEFAULT);
-      //   setLastName(LAST_NAME_DEFAULT);
-      //   setGender(GENDER_DEFAULT);
-    },
-  });
   const [isEditable, setIsEditable] = useState(false);
   const styles = ["grid", "grid-cols-4", "gap-4"];
   if (isEditable) {
     return (
-      <form onSubmit={formik.handleSubmit} className={clsx(styles)}>
-        <div>
-          {/* <label htmlFor="firstName">First Name</label> */}
-          <input
-            id="firstName"
-            name="firstName"
-            type="text"
-            placeholder="First Name"
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.firstName}
-          />
-          {formik.touched.firstName && formik.errors.firstName ? (
-            <div>
-              <InlineError text={formik.errors.firstName} />
-            </div>
-          ) : null}
-        </div>
-        <div>
-          {/* <label htmlFor="lastName">Last Name</label> */}
-          <input
-            id="lastName"
-            name="lastName"
-            type="text"
-            placeholder="Last Name"
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.lastName}
-          />
-          {formik.touched.lastName && formik.errors.lastName ? (
-            <div>
-              {" "}
-              <InlineError text={formik.errors.lastName} />
-            </div>
-          ) : null}
-        </div>
-        <div>
-          <div>
-            <select
-              id={"gender"}
-              name={"gender"}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-            >
-              <option value="-1">Select...</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-            {formik.touched.gender && formik.errors.gender ? (
+      <Formik
+        initialValues={{
+          firstName: FIRST_NAME_DEFAULT,
+          lastName: LAST_NAME_DEFAULT,
+          gender: GENDER_DEFAULT,
+        }}
+        validationSchema={NewStudentSchema}
+        onSubmit={(values, { resetForm }) => {
+          alert(JSON.stringify(values, null, 2));
+
+          setStudents((prevStudents) => [
+            ...prevStudents,
+            {
+              firstName: values.firstName,
+              lastName: values.lastName,
+              gender: values.gender,
+              id: `${Math.random()}`,
+            },
+          ]);
+          resetForm({});
+        }}
+      >
+        {(props: FormikProps<any>) => (
+          <Form>
+            <div className={clsx(styles)}>
               <div>
-                <InlineError text={formik.errors.gender} />
+                <Field name="firstName">
+                  {/* {({
+                    field, // { name, value, onChange, onBlur }
+                    form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
+                    meta,
+                  }: any) => (
+                    <div>
+                      <input type="text" placeholder="First name" {...field} />
+                      {meta.touched && meta.error && (
+                        <div className="error">{meta.error}</div>
+                      )}
+                    </div>
+                  )} */}
+                </Field>
+                <ErrorMessage
+                  name="firstName"
+                  render={(msg) => <InlineError text={msg} />}
+                />
               </div>
-            ) : null}
-          </div>
-        </div>
-        <div>
-          <button type="submit">Submit</button>
-        </div>
-      </form>
+              <div>
+                <Field name="lastName">
+                  {/* {({
+                    field, // { name, value, onChange, onBlur }
+                    form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
+                    meta,
+                  }: any) => (
+                    <div>
+                      <input type="text" placeholder="last name" {...field} />
+                      {meta.touched && meta.error && (
+                        <div className="error">{meta.error}</div>
+                      )}
+                    </div>
+                  )} */}
+                </Field>
+                <ErrorMessage
+                  name="lastName"
+                  render={(msg) => <InlineError text={msg} />}
+                />
+              </div>
+
+              <div>
+                <Field as="select" name="gender">
+                  <option value="">Select...</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </Field>
+                <ErrorMessage
+                  name="gender"
+                  render={(msg) => <InlineError text={msg} />}
+                />
+              </div>
+              <div>
+                <button type="submit">Submit</button>
+              </div>
+            </div>
+          </Form>
+        )}
+      </Formik>
 
       //   <div className={clsx(styles)}>
       //     <div>
