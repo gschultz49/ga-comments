@@ -1,24 +1,17 @@
+import "firebase/analytics";
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
 import React from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 // import logo from "./logo.svg";
 import "./App.css";
-import "./App.css";
-
-import firebase from "firebase/app";
-import "firebase/firestore";
-import "firebase/auth";
-import "firebase/analytics";
-
-import { useAuthState } from "react-firebase-hooks/auth";
-// import { useCollectionData } from "react-firebase-hooks/firestore";
+import CreateClass from "./Pages/CreateClass";
+import HomePage from "./Pages/Home";
+import ViewClass from "./Pages/ViewClass";
 import SignIn from "./Signin";
 import SignOut from "./Signout";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-} from "react-router-dom";
-import HomePage from "./Pages/Home";
 
 firebase.initializeApp({
   apiKey: "AIzaSyCwxiDrVBzpiEtz5rL9eJt6bZIdymyTQ30",
@@ -79,14 +72,8 @@ function Home() {
     <Router>
       <div>
         <ul>
-          <li>
-            <Link to="/">HomePage</Link>
-          </li>
           {/* <li>
             <Link to="/class/123">Class View 123</Link>
-          </li>
-          <li>
-            <Link to="/student">Student</Link>
           </li> */}
         </ul>
 
@@ -100,17 +87,17 @@ function Home() {
           of them to render at a time
         */}
         <Switch>
+          <Route path={`/class/createClass`}>
+            <p>in create class</p>
+            <CreateClass />
+          </Route>
+          <Route path={`/class/:classID`}>
+            <p>in view class</p>
+            <ViewClass />
+          </Route>
           <Route exact path="/">
             <HomePage />
           </Route>
-
-          {/* <Route path="/class/:id">
-            <AddClassPage />
-          </Route> */}
-
-          {/* <Route path="/student">
-            <Student />
-          </Route> */}
         </Switch>
       </div>
     </Router>
