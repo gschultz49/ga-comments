@@ -1,23 +1,25 @@
 import clsx from "clsx";
-import firebase from "firebase";
 import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import React, { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
 import { auth, firestore } from "../App";
+import {
+  CLASSES_COLLECTION,
+  modifyAndCreateTimestamp,
+  redirectTo,
+  STUDENT_COLLECTION,
+} from "../utils";
 
-export const CLASSES_COLLECTION = "classes";
-export const STUDENT_COLLECTION = "students";
+export interface Student {
+  firstName: string;
+  lastName: string;
+  gender: string;
+  isEditable?: boolean;
+}
 
-export const getTimestamp = () => firebase.firestore.Timestamp.now();
-export const createWithTimestamp = () => ({ createdAt: getTimestamp() });
-export const modifyTimestamp = () => ({ modifiedAt: getTimestamp() });
-export const modifyAndCreateTimestamp = () => ({
-  ...createWithTimestamp(),
-  ...modifyTimestamp(),
-});
-
-const produceDefaults = (n: number, defaultObj = DEFAULT_OBJ): Student[] => {
+const produceDefaults = (n = 1, defaultObj = DEFAULT_OBJ): Student[] => {
   const defaults: Student[] = [];
   for (let i = 0; i < n; i++) {
     defaults.push(defaultObj());
@@ -27,54 +29,9 @@ const produceDefaults = (n: number, defaultObj = DEFAULT_OBJ): Student[] => {
 
 const CreateClass = () => {
   const [user] = useAuthState(auth);
+  const history = useHistory();
 
-  const studentsData = produceDefaults(3);
-
-  const submitStudents = async ({
-    students,
-    className,
-    teacherId,
-  }: {
-    students: Student[];
-    className: string;
-    teacherId: string | undefined;
-  }) => {
-    // firestore
-    //   .collection("classes")
-    //   .add({
-    //     name: className,
-    //   })
-    //   .then(function (docRef) {
-    //     console.log("Document written with ID: ", docRef.id);
-    //   })
-    //   .catch(function (classError) {
-    //     console.error("Error adding class document: ", classError);
-    //   });
-
-    const classIDRef = await firestore.collection(CLASSES_COLLECTION).add({
-      name: className,
-      uid: teacherId,
-      ...modifyAndCreateTimestamp(),
-    });
-    try {
-      const batch = firestore.batch();
-      students.forEach((student) => {
-        var docRef = firestore.collection(STUDENT_COLLECTION).doc(); //automatically generate unique id
-        batch.set(docRef, {
-          firstName: student.firstName,
-          lastName: student.lastName,
-          gender: student.gender,
-          classID: classIDRef.id,
-          ...modifyAndCreateTimestamp(),
-        });
-      });
-      await batch.commit();
-    } catch (err) {
-      console.error("Error inserting students", err);
-    }
-
-    console.log("Insertion Successful");
-  };
+  const studentsData = produceDefaults(1);
 
   const [students] = useState<Student[]>(studentsData); // come from some network request
   return (
@@ -88,13 +45,14 @@ const CreateClass = () => {
             initialValues={{ students: students, className: "" }}
             onSubmit={async (values) => {
               console.log(values);
-              submitStudents({
+              submit({
                 students: values.students,
                 className: values.className,
                 teacherId: user?.uid,
+                history: history,
               });
             }}
-            validationSchema={NestedStudentSchema}
+            validationSchema={FormSchema}
           >
             {({ values }) => (
               <Form>
@@ -108,7 +66,7 @@ const CreateClass = () => {
                   {({ insert, remove, push }) => (
                     <div>
                       {values.students.map((student: Student, index) => {
-                        if (student.isNew && student.isNew === true) {
+                        if (student.isEditable && student.isEditable === true) {
                           return (
                             <div className={clsx(styles)} key={index}>
                               <div>
@@ -188,19 +146,67 @@ const CreateClass = () => {
     </section>
   );
 };
-export interface Student {
-  //   id: string;
-  firstName: string;
-  lastName: string;
-  gender: string;
-  isNew?: boolean;
-}
+
+/**
+ * Handles the Submission of a class and its students
+ *
+ * @param {({
+ *   students: Student[];
+ *   className: string;
+ *   teacherId: string | undefined;
+ *   history: any; // react router type
+ * })} {
+ *   students,
+ *   className,
+ *   teacherId,
+ *   history,
+ * }
+ */
+const submit = async ({
+  students,
+  className,
+  teacherId,
+  history,
+}: {
+  students: Student[];
+  className: string;
+  teacherId: string | undefined;
+  history: any; // react router type
+}) => {
+  try {
+    const classIDRef = await firestore.collection(CLASSES_COLLECTION).add({
+      name: className,
+      uid: teacherId,
+      ...modifyAndCreateTimestamp(),
+    });
+    try {
+      const batch = firestore.batch();
+      students.forEach((student) => {
+        var docRef = firestore.collection(STUDENT_COLLECTION).doc(); //automatically generate unique id
+        batch.set(docRef, {
+          firstName: student.firstName,
+          lastName: student.lastName,
+          gender: student.gender,
+          classID: classIDRef.id,
+          ...modifyAndCreateTimestamp(),
+        });
+      });
+      await batch.commit();
+    } catch (err) {
+      console.error("Error inserting students", err);
+    }
+  } catch (err) {
+    console.error("Error inserting class", err);
+  }
+  console.log("Insertion Successful!");
+  redirectTo(history, "/");
+};
 
 export const InlineError = ({ text }: { text: string }) => (
   <i className="text-red-700">{text}</i>
 );
 
-const NestedStudentSchema = Yup.object().shape({
+const FormSchema = Yup.object().shape({
   students: Yup.array().of(
     Yup.object().shape({
       firstName: Yup.string()
@@ -219,6 +225,7 @@ const NestedStudentSchema = Yup.object().shape({
     .max(70, "Too Long!")
     .required("Required"),
 });
+
 const FIRST_NAME_DEFAULT = "";
 const LAST_NAME_DEFAULT = "";
 const GENDER_DEFAULT = "";
@@ -227,8 +234,7 @@ const DEFAULT_OBJ = (): Student => ({
   firstName: FIRST_NAME_DEFAULT,
   lastName: LAST_NAME_DEFAULT,
   gender: GENDER_DEFAULT,
-  //   id: `${Math.random()}`,
-  isNew: true,
+  isEditable: true,
 });
 
 const styles = ["grid", "grid-cols-4", "gap-4"];
