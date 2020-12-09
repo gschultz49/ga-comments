@@ -102,6 +102,13 @@ const CreateClass = () => {
                                   render={(msg) => <InlineError text={msg} />}
                                 />
                               </div>
+                              <div
+                                onClick={(e) => {
+                                  remove(index);
+                                }}
+                              >
+                                <button>remove button</button>
+                              </div>
                             </div>
                           );
                         } else {
