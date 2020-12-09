@@ -1,71 +1,76 @@
-import firebase from "firebase";
-import { useCollectionData } from "react-firebase-hooks/firestore";
 import clsx from "clsx";
+import firebase from "firebase";
+import React from "react";
+import { useCollectionData } from "react-firebase-hooks/firestore";
+import { Link, useRouteMatch } from "react-router-dom";
 
 export interface ClassCard {
   name: string;
   uid: string;
+  classID: string;
 }
 
 const ClassList = ({ teacherId }: { teacherId: string | undefined }) => {
-  console.log(teacherId);
   const [classes, loading, error] = useCollectionData<ClassCard>(
     firebase.firestore().collection("classes").where("uid", "==", teacherId),
     {
+      idField: "classID",
       snapshotListenOptions: { includeMetadataChanges: true },
     }
   );
-  console.log(classes);
   return (
-    <div className="grid grid-cols-3 gap-6">
+    <div className="grid grid-cols-3 gap-10">
       {error && <strong>Error: {JSON.stringify(error)}</strong>}
       {loading && <span>Loading...</span>}
-      <CreateClassCard teacherId={teacherId} />
+      <CreateNewClassCard />
       {classes?.map((c) => (
-        <ClassCardComponent name={c.name} uid={c.uid} />
+        <ClassCardComponent name={c.name} uid={c.uid} classID={c.classID} />
       ))}
     </div>
   );
 };
 
+const cardClasses = [
+  "shadow-lg",
+  "rounded-md",
+  "bg-purple-200",
+  "cursor-pointer",
+  "transform",
+  "transition",
+  "hover:scale-110",
+  "motion-reduce:transform-none",
+];
+
 const CardWrapper = ({ children, onClick, styles = [] }: any) => {
   return (
-    <div
-      className={clsx([
-        "shadow-lg",
-        "rounded-md",
-        "bg-purple-200",
-        "cursor-pointer",
-        "transform",
-        "transition",
-        "hover:scale-110",
-        "motion-reduce:transform-none",
-        ...styles,
-      ])}
-      onClick={onClick}
-    >
+    <div className={clsx([cardClasses, ...styles])} onClick={onClick}>
       {children}
     </div>
   );
 };
 
-const ClassCardComponent = ({ name, uid }: ClassCard) => {
+const CreateNewClassCard = () => {
+  let { url } = useRouteMatch();
   return (
-    <CardWrapper>
-      <h1>{name}</h1>
-      <h1>{uid}</h1>
-    </CardWrapper>
+    <Link to={`${url}class/createClass`}>
+      <CardWrapper>
+        <p>Create class</p>
+      </CardWrapper>
+    </Link>
   );
 };
 
-const CreateClassCard = ({ teacherId }: { teacherId: string | undefined }) => {
+const ClassCardComponent = ({ name, uid, classID }: ClassCard) => {
+  let { url } = useRouteMatch();
+  let toPath = `${url}class/${uid}`;
   return (
-    <CardWrapper
-      onClick={(e: Event) => console.log("clicked add card", teacherId, e)}
-      styles={[]}
-    >
-      <html>create class button</html>
-    </CardWrapper>
+    <Link to={toPath}>
+      <CardWrapper>
+        <h1>{name}</h1>
+        <h1>uid:{uid}</h1>
+        <h1>classID:{classID}</h1>
+      </CardWrapper>
+    </Link>
   );
 };
 
