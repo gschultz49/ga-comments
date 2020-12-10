@@ -35,9 +35,9 @@ const setIsActive = (
     );
 };
 
-export const removeStudent = (id: string | undefined) => {
-  setIsActive(STUDENT_COLLECTION, id, false);
-};
+// const removeStudent = (id: string | undefined) => {
+//   setIsActive(STUDENT_COLLECTION, id, false);
+// };
 
 export const removeClass = (id: string | undefined) => {
   setIsActive(CLASSES_COLLECTION, id, false);
