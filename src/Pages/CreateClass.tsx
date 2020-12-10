@@ -67,20 +67,20 @@ const CreateClass = () => {
         >
           {({ values }) => (
             <Form>
-              <Grid>
-                <label htmlFor="className">Class Name </label>
-                <Field name={"className"}></Field>
-                <ErrorMessage
-                  name={`className`}
-                  render={(msg) => <InlineError text={msg} />}
-                />
+              <label htmlFor="className">Class Name </label>
+              <Field name={"className"}></Field>
+              <ErrorMessage
+                name={`className`}
+                render={(msg) => <InlineError text={msg} />}
+              />
+              <Grid styles={["grid-cols-4"]}>
                 <FieldArray name="students">
                   {({ insert, remove, push }) => (
                     <React.Fragment>
                       {values.students.map((student: Student, index) => {
                         if (student.isEditable && student.isEditable === true) {
                           return (
-                            <Grid>
+                            <React.Fragment>
                               <div>
                                 <Field
                                   name={`students[${index}].firstName`}
@@ -122,7 +122,7 @@ const CreateClass = () => {
                               >
                                 <div>remove button</div>
                               </div>
-                            </Grid>
+                            </React.Fragment>
                           );
                         } else {
                           return (
