@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import firebase from "firebase";
-import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import React from "react";
 import {
   useCollectionData,
@@ -9,7 +9,7 @@ import {
 import { useHistory, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import { firestore } from "../App";
-import Grid from "../Components/Grid";
+import StudentForm from "../Components/Students/StudentForm";
 import {
   CLASSES_COLLECTION,
   modifyAndCreateTimestamp,
@@ -18,13 +18,7 @@ import {
   removeStudentFromClass,
   STUDENT_COLLECTION,
 } from "../utils";
-import {
-  AddStudentButton,
-  InlineError,
-  RemoveButton,
-  Student,
-  studentsValidation,
-} from "./CreateClass";
+import { Student, studentsValidation } from "./CreateClassForm";
 
 interface TeachingClass {
   name: string;
@@ -63,7 +57,7 @@ const addStudentToExistingClass = async ({
   }
 };
 
-const ViewClassProvider = () => {
+const ViewClassFormProvider = () => {
   let { classID }: { classID: string } = useParams();
 
   const [students, loading, error] = useCollectionData<Student>(
@@ -86,7 +80,7 @@ const ViewClassProvider = () => {
   );
 
   return (
-    <ViewClassDisplay
+    <ViewClassForm
       classID={classID}
       className={targetClass?.name}
       error={error}
@@ -98,7 +92,7 @@ const ViewClassProvider = () => {
 
 const StudentsSchema = Yup.object().shape(studentsValidation);
 
-export const ViewClassDisplay = ({
+export const ViewClassForm = ({
   className,
   error = undefined,
   loading = false,
@@ -117,7 +111,6 @@ export const ViewClassDisplay = ({
       <h1>{className}</h1>
       {error && <strong>Error: {JSON.stringify(error)}</strong>}
       {loading && <span>Loading...</span>}
-      {/* <StudentsGrid students={students} /> */}
       <table
         className="table-fixed w-full text-left"
         style={{ borderCollapse: "separate", borderSpacing: "0 1em;" }}
@@ -200,70 +193,7 @@ export const ViewClassDisplay = ({
       >
         {({ values }) => (
           <Form>
-            <Grid styles={["grid-cols-4"]}>
-              <FieldArray name="students">
-                {({ remove, push }) => (
-                  <React.Fragment>
-                    {values.students.map((student: Student, index) => {
-                      if (student.isEditable && student.isEditable === true) {
-                        return (
-                          <React.Fragment>
-                            <div>
-                              <Field
-                                name={`students[${index}].firstName`}
-                              ></Field>
-                              <ErrorMessage
-                                name={`students[${index}].firstName`}
-                                render={(msg) => <InlineError text={msg} />}
-                              />
-                            </div>
-                            <div>
-                              <Field
-                                name={`students[${index}].lastName`}
-                              ></Field>
-                              <ErrorMessage
-                                name={`students[${index}].lastName`}
-                                render={(msg) => <InlineError text={msg} />}
-                              />
-                            </div>
-
-                            <div>
-                              <Field
-                                as="select"
-                                name={`students[${index}].gender`}
-                              >
-                                <option value="">Select...</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
-                              </Field>
-                              <ErrorMessage
-                                name={`students[${index}].gender`}
-                                render={(msg) => <InlineError text={msg} />}
-                              />
-                            </div>
-                            <RemoveButton remove={remove} index={index} />
-                          </React.Fragment>
-                        );
-                      } else {
-                        return (
-                          <React.Fragment>
-                            <div>{student.firstName}</div>
-                            <div>{student.lastName}</div>
-                            <div>{student.gender}</div>
-                            <RemoveButton remove={remove} index={index} />
-                          </React.Fragment>
-                        );
-                      }
-                    })}
-                    <AddStudentButton push={push} />
-                    <div>
-                      <button type="submit">Submit</button>
-                    </div>
-                  </React.Fragment>
-                )}
-              </FieldArray>
-            </Grid>
+            <StudentForm students={values.students} />
           </Form>
         )}
       </Formik>
@@ -271,4 +201,4 @@ export const ViewClassDisplay = ({
   );
 };
 
-export default ViewClassProvider;
+export default ViewClassFormProvider;

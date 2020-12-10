@@ -7,9 +7,9 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 // import logo from "./logo.svg";
 import "./App.css";
-import CreateClass from "./Pages/CreateClass";
+import CreateClassForm from "./Pages/CreateClassForm";
 import HomePage from "./Pages/Home";
-import ViewClass from "./Pages/ViewClass";
+import ViewClassForm from "./Pages/ViewClassForm";
 import ViewStudent from "./Pages/ViewStudent";
 import SignIn from "./Signin";
 import SignOut from "./Signout";
@@ -89,10 +89,10 @@ function Home() {
         */}
         <Switch>
           <Route path={`/class/createClass`}>
-            <CreateClass />
+            <CreateClassForm />
           </Route>
           <Route path={`/class/:classID`}>
-            <ViewClass />
+            <ViewClassForm />
           </Route>
           <Route path={`/student/:studentID`}>
             <ViewStudent />

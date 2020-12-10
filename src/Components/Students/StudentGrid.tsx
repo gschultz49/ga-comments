@@ -1,11 +1,10 @@
 import firebase from "firebase";
 import React from "react";
 import { useCollectionData } from "react-firebase-hooks/firestore";
-import { Link } from "react-router-dom";
-import { Student } from "../Pages/CreateClass";
-import { STUDENT_COLLECTION } from "../utils";
-import CardWrapper from "./CardWrapper";
-import Grid from "./Grid";
+import { Student } from "../../Pages/CreateClassForm";
+import { STUDENT_COLLECTION } from "../../utils";
+import Grid from "../Utils/Grid";
+import StudentCard from "./StudentCard";
 
 // todo: could find a way to add this to the homepage and inner join on class + students
 const StudentListProvider = () => {
@@ -22,12 +21,12 @@ const StudentListProvider = () => {
       <h1>Students</h1>
       {error && <strong>Error: {JSON.stringify(error)}</strong>}
       {loading && <span>Loading...</span>}
-      <StudentsGrid students={students} />
+      <StudentCardGrid students={students} />
     </React.Fragment>
   );
 };
 
-export const StudentsGrid = ({
+export const StudentCardGrid = ({
   students,
 }: {
   students: Student[] | undefined;
@@ -35,7 +34,7 @@ export const StudentsGrid = ({
   return (
     <Grid>
       {students?.map(({ firstName, lastName, gender, id }: Student) => (
-        <StudentDisplay
+        <StudentCard
           firstName={firstName}
           lastName={lastName}
           gender={gender}
@@ -43,24 +42,6 @@ export const StudentsGrid = ({
         />
       ))}
     </Grid>
-  );
-};
-
-export const StudentDisplay = ({
-  firstName,
-  lastName,
-  gender,
-  id,
-}: Student) => {
-  return (
-    <Link to={`/student/${id}`}>
-      <CardWrapper>
-        <h1>
-          {firstName} {lastName}
-        </h1>
-        <p>{gender}</p>
-      </CardWrapper>
-    </Link>
   );
 };
 

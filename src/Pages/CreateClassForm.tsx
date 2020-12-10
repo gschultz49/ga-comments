@@ -1,11 +1,11 @@
 import clsx from "clsx";
-import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import React, { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
 import { auth, firestore } from "../App";
-import Grid from "../Components/Grid";
+import StudentForm from "../Components/Students/StudentForm";
 import {
   CLASSES_COLLECTION,
   modifyAndCreateTimestamp,
@@ -41,7 +41,7 @@ const produceDefaults = (n = 1, defaultObj = DEFAULT_STUDENT): Student[] => {
   return defaults;
 };
 
-const CreateClass = () => {
+const CreateClassForm = () => {
   const [user] = useAuthState(auth);
   const history = useHistory();
 
@@ -74,70 +74,7 @@ const CreateClass = () => {
                 name={`className`}
                 render={(msg) => <InlineError text={msg} />}
               />
-              <Grid styles={["grid-cols-4"]}>
-                <FieldArray name="students">
-                  {({ insert, remove, push }) => (
-                    <React.Fragment>
-                      {values.students.map((student: Student, index) => {
-                        if (student.isEditable && student.isEditable === true) {
-                          return (
-                            <React.Fragment>
-                              <div>
-                                <Field
-                                  name={`students[${index}].firstName`}
-                                ></Field>
-                                <ErrorMessage
-                                  name={`students[${index}].firstName`}
-                                  render={(msg) => <InlineError text={msg} />}
-                                />
-                              </div>
-                              <div>
-                                <Field
-                                  name={`students[${index}].lastName`}
-                                ></Field>
-                                <ErrorMessage
-                                  name={`students[${index}].lastName`}
-                                  render={(msg) => <InlineError text={msg} />}
-                                />
-                              </div>
-
-                              <div>
-                                <Field
-                                  as="select"
-                                  name={`students[${index}].gender`}
-                                >
-                                  <option value="">Select...</option>
-                                  <option value="Male">Male</option>
-                                  <option value="Female">Female</option>
-                                  <option value="Other">Other</option>
-                                </Field>
-                                <ErrorMessage
-                                  name={`students[${index}].gender`}
-                                  render={(msg) => <InlineError text={msg} />}
-                                />
-                              </div>
-                              <RemoveButton remove={remove} index={index} />
-                            </React.Fragment>
-                          );
-                        } else {
-                          return (
-                            <Grid>
-                              <div>{student.firstName}</div>
-                              <div>{student.lastName}</div>
-                              <div>{student.gender}</div>
-                              <RemoveButton remove={remove} index={index} />
-                            </Grid>
-                          );
-                        }
-                      })}
-                      <AddStudentButton push={push} />
-                      <div>
-                        <button type="submit">Submit</button>
-                      </div>
-                    </React.Fragment>
-                  )}
-                </FieldArray>
-              </Grid>
+              <StudentForm students={values.students} />
             </Form>
           )}
         </Formik>
@@ -267,4 +204,4 @@ export const AddStudentButton = ({ push }: { push: any }) => {
   );
 };
 
-export default CreateClass;
+export default CreateClassForm;
