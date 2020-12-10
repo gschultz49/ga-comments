@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { FieldArray, Field, ErrorMessage } from "formik";
 import React from "react";
 import {
@@ -17,14 +18,14 @@ const StudentForm = ({ students }: { students: Student[] }) => (
             if (student.isEditable && student.isEditable === true) {
               return (
                 <React.Fragment>
-                  <div>
+                  <div className={clsx(["flex", "flex-col"])}>
                     <Field name={`students[${index}].firstName`}></Field>
                     <ErrorMessage
                       name={`students[${index}].firstName`}
                       render={(msg) => <InlineError text={msg} />}
                     />
                   </div>
-                  <div>
+                  <div className={clsx(["flex", "flex-col"])}>
                     <Field name={`students[${index}].lastName`}></Field>
                     <ErrorMessage
                       name={`students[${index}].lastName`}
@@ -32,7 +33,7 @@ const StudentForm = ({ students }: { students: Student[] }) => (
                     />
                   </div>
 
-                  <div>
+                  <div className={clsx(["flex", "flex-col"])}>
                     <Field as="select" name={`students[${index}].gender`}>
                       <option value="">Select...</option>
                       <option value="Male">Male</option>
@@ -59,9 +60,11 @@ const StudentForm = ({ students }: { students: Student[] }) => (
             }
           })}
           <AddStudentButton push={push} />
-          <div>
-            <button type="submit">Submit</button>
-          </div>
+          {students.length > 0 && (
+            <div>
+              <button type="submit">Submit</button>
+            </div>
+          )}
         </React.Fragment>
       )}
     </FieldArray>

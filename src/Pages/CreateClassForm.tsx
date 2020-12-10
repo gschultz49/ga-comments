@@ -198,6 +198,7 @@ export const AddStudentButton = ({ push }: { push: any }) => {
       onClick={(e) => {
         push(...produceDefaults(1));
       }}
+      className={clsx(["cursor-pointer"])}
     >
       <div>+ Add Student</div>
     </div>
