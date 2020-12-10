@@ -17,8 +17,8 @@ export interface Student {
   lastName: string;
   gender: string;
   isEditable?: boolean;
+  id?: string;
 }
-
 const produceDefaults = (n = 1, defaultObj = DEFAULT_OBJ): Student[] => {
   const defaults: Student[] = [];
   for (let i = 0; i < n; i++) {
@@ -176,7 +176,7 @@ const submit = async ({
   try {
     const classIDRef = await firestore.collection(CLASSES_COLLECTION).add({
       name: className,
-      uid: teacherId,
+      teacherId: teacherId,
       ...modifyAndCreateTimestamp(),
     });
     try {
@@ -188,6 +188,9 @@ const submit = async ({
           lastName: student.lastName,
           gender: student.gender,
           classID: classIDRef.id,
+          // Using the reference data type is apparently more inconvenient than strings rn...
+          //   https://stackoverflow.com/questions/46568850/what-is-firebase-firestore-reference-data-type-good-for
+          //   classID: firestore.doc(`${CLASSES_COLLECTION}/${classIDRef.id}`),
           ...modifyAndCreateTimestamp(),
         });
       });

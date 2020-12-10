@@ -10,6 +10,7 @@ import "./App.css";
 import CreateClass from "./Pages/CreateClass";
 import HomePage from "./Pages/Home";
 import ViewClass from "./Pages/ViewClass";
+import ViewStudent from "./Pages/ViewStudent";
 import SignIn from "./Signin";
 import SignOut from "./Signout";
 
@@ -92,6 +93,9 @@ function Home() {
           </Route>
           <Route path={`/class/:classID`}>
             <ViewClass />
+          </Route>
+          <Route path={`/student/:studentID`}>
+            <ViewStudent />
           </Route>
           <Route exact path="/">
             <HomePage />

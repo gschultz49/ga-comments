@@ -3,18 +3,22 @@ import firebase from "firebase";
 import React from "react";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import { Link, useRouteMatch } from "react-router-dom";
+import { CLASSES_COLLECTION } from "../utils";
 
 export interface ClassCard {
   name: string;
-  uid: string;
-  classID: string;
+  teacherId: string;
+  id: string;
 }
 
 const ClassList = ({ teacherId }: { teacherId: string | undefined }) => {
   const [classes, loading, error] = useCollectionData<ClassCard>(
-    firebase.firestore().collection("classes").where("uid", "==", teacherId),
+    firebase
+      .firestore()
+      .collection(CLASSES_COLLECTION)
+      .where("teacherId", "==", teacherId),
     {
-      idField: "classID",
+      idField: "id",
       snapshotListenOptions: { includeMetadataChanges: true },
     }
   );
@@ -24,7 +28,7 @@ const ClassList = ({ teacherId }: { teacherId: string | undefined }) => {
       {loading && <span>Loading...</span>}
       <CreateNewClassCard />
       {classes?.map((c) => (
-        <ClassCardComponent name={c.name} uid={c.uid} classID={c.classID} />
+        <ClassCardComponent name={c.name} teacherId={c.teacherId} id={c.id} />
       ))}
     </div>
   );
@@ -41,7 +45,7 @@ const cardClasses = [
   "motion-reduce:transform-none",
 ];
 
-const CardWrapper = ({ children, onClick, styles = [] }: any) => {
+export const CardWrapper = ({ children, onClick, styles = [] }: any) => {
   return (
     <div className={clsx([cardClasses, ...styles])} onClick={onClick}>
       {children}
@@ -60,15 +64,15 @@ const CreateNewClassCard = () => {
   );
 };
 
-const ClassCardComponent = ({ name, uid, classID }: ClassCard) => {
+const ClassCardComponent = ({ name, teacherId, id }: ClassCard) => {
   let { url } = useRouteMatch();
-  let toPath = `${url}class/${uid}`;
+  let toPath = `${url}class/${id}`;
   return (
     <Link to={toPath}>
       <CardWrapper>
         <h1>{name}</h1>
-        <h1>uid:{uid}</h1>
-        <h1>classID:{classID}</h1>
+        <h1>teacherId:{teacherId}</h1>
+        <h1>id:{id}</h1>
       </CardWrapper>
     </Link>
   );
