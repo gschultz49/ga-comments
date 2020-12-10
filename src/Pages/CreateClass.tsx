@@ -1,10 +1,10 @@
-import clsx from "clsx";
 import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import React, { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
 import { auth, firestore } from "../App";
+import Grid from "../Components/Grid";
 import {
   CLASSES_COLLECTION,
   modifyAndCreateTimestamp,
@@ -19,7 +19,19 @@ export interface Student {
   isEditable?: boolean;
   id?: string;
 }
-const produceDefaults = (n = 1, defaultObj = DEFAULT_OBJ): Student[] => {
+
+const FIRST_NAME_DEFAULT = "";
+const LAST_NAME_DEFAULT = "";
+const GENDER_DEFAULT = "";
+
+const DEFAULT_STUDENT = (): Student => ({
+  firstName: FIRST_NAME_DEFAULT,
+  lastName: LAST_NAME_DEFAULT,
+  gender: GENDER_DEFAULT,
+  isEditable: true,
+});
+
+const produceDefaults = (n = 1, defaultObj = DEFAULT_STUDENT): Student[] => {
   const defaults: Student[] = [];
   for (let i = 0; i < n; i++) {
     defaults.push(defaultObj());
@@ -40,11 +52,10 @@ const CreateClass = () => {
         <p>Teacher: {user?.displayName}</p>
       </section>
       <section>
-        <div className="grid grid-flow-row gap-4">
+        <Grid>
           <Formik
             initialValues={{ students: students, className: "" }}
             onSubmit={async (values) => {
-              console.log(values);
               submit({
                 students: values.students,
                 className: values.className,
@@ -68,7 +79,7 @@ const CreateClass = () => {
                       {values.students.map((student: Student, index) => {
                         if (student.isEditable && student.isEditable === true) {
                           return (
-                            <div className={clsx(styles)} key={index}>
+                            <Grid>
                               <div>
                                 <Field
                                   name={`students[${index}].firstName`}
@@ -110,11 +121,11 @@ const CreateClass = () => {
                               >
                                 <div>remove button</div>
                               </div>
-                            </div>
+                            </Grid>
                           );
                         } else {
                           return (
-                            <div className="grid grid-cols-4 gap-4">
+                            <Grid>
                               <div>{student.firstName}</div>
                               <div>{student.lastName}</div>
                               <div>{student.gender}</div>
@@ -125,7 +136,7 @@ const CreateClass = () => {
                               >
                                 <div>remove button</div>
                               </div>
-                            </div>
+                            </Grid>
                           );
                         }
                       })}
@@ -139,7 +150,7 @@ const CreateClass = () => {
               </Form>
             )}
           </Formik>
-        </div>
+        </Grid>
       </section>
       {/* <h1>results:</h1>
       <pre>{JSON.stringify(submission, undefined, 2)}</pre> */}
@@ -229,22 +240,9 @@ const FormSchema = Yup.object().shape({
     .required("Required"),
 });
 
-const FIRST_NAME_DEFAULT = "";
-const LAST_NAME_DEFAULT = "";
-const GENDER_DEFAULT = "";
-
-const DEFAULT_OBJ = (): Student => ({
-  firstName: FIRST_NAME_DEFAULT,
-  lastName: LAST_NAME_DEFAULT,
-  gender: GENDER_DEFAULT,
-  isEditable: true,
-});
-
-const styles = ["grid", "grid-cols-4", "gap-4"];
-
 const AddStudentButton = ({ push }: { push: any }) => {
   return (
-    <div className={clsx(styles)}>
+    <Grid>
       <div
         onClick={(e) => {
           push(...produceDefaults(1));
@@ -252,7 +250,7 @@ const AddStudentButton = ({ push }: { push: any }) => {
       >
         <div>+ Add Student</div>
       </div>
-    </div>
+    </Grid>
   );
 };
 

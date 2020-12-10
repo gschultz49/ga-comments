@@ -8,7 +8,10 @@ export default function HomePage() {
   return (
     <div>
       <h2>Welcome {user?.displayName}!</h2>
+      <h1>Classes</h1>
       <ClassList teacherId={user?.uid} />
+      {/* <h1>Students</h1>
+      <StudentList /> */}
     </div>
   );
 }

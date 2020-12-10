@@ -1,9 +1,10 @@
-import clsx from "clsx";
 import firebase from "firebase";
 import React from "react";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import { Link, useRouteMatch } from "react-router-dom";
 import { CLASSES_COLLECTION } from "../utils";
+import CardWrapper from "./CardWrapper";
+import Grid from "./Grid";
 
 export interface ClassCard {
   name: string;
@@ -11,7 +12,11 @@ export interface ClassCard {
   id: string;
 }
 
-const ClassList = ({ teacherId }: { teacherId: string | undefined }) => {
+const ClassListProvider = ({
+  teacherId,
+}: {
+  teacherId: string | undefined;
+}) => {
   const [classes, loading, error] = useCollectionData<ClassCard>(
     firebase
       .firestore()
@@ -23,40 +28,52 @@ const ClassList = ({ teacherId }: { teacherId: string | undefined }) => {
     }
   );
   return (
-    <div className="grid grid-cols-3 gap-10">
+    <React.Fragment>
       {error && <strong>Error: {JSON.stringify(error)}</strong>}
       {loading && <span>Loading...</span>}
-      <CreateNewClassCard />
-      {classes?.map((c) => (
-        <ClassCardComponent name={c.name} teacherId={c.teacherId} id={c.id} />
-      ))}
-    </div>
+      <ClassListGrid classes={classes} />
+    </React.Fragment>
   );
 };
 
-const cardClasses = [
-  "shadow-lg",
-  "rounded-md",
-  "bg-purple-200",
-  "cursor-pointer",
-  "transform",
-  "transition",
-  "hover:scale-110",
-  "motion-reduce:transform-none",
-];
-
-export const CardWrapper = ({ children, onClick, styles = [] }: any) => {
-  return (
-    <div className={clsx([cardClasses, ...styles])} onClick={onClick}>
-      {children}
-    </div>
-  );
-};
-
-const CreateNewClassCard = () => {
+const ClassCardProvider = ({ name, teacherId, id }: ClassCard) => {
   let { url } = useRouteMatch();
+  let toPath = `${url}class/${id}`;
   return (
-    <Link to={`${url}class/createClass`}>
+    <ClassCardDisplay
+      name={name}
+      teacherId={teacherId}
+      id={id}
+      toPath={toPath}
+    />
+  );
+};
+
+const CreateClassProvider = () => {
+  let { url } = useRouteMatch();
+  return <CreateClassDisplay toPath={`${url}class/createClass`} />;
+};
+
+const ClassListGrid = ({
+  classes,
+  newClass = true,
+}: {
+  classes: ClassCard[] | undefined;
+  newClass?: boolean;
+}) => {
+  return (
+    <Grid>
+      {newClass ? <CreateClassProvider /> : null}
+      {classes?.map((c) => (
+        <ClassCardProvider name={c.name} teacherId={c.teacherId} id={c.id} />
+      ))}
+    </Grid>
+  );
+};
+
+const CreateClassDisplay = ({ toPath }: { toPath: string }) => {
+  return (
+    <Link to={toPath}>
       <CardWrapper>
         <p>Create class</p>
       </CardWrapper>
@@ -64,9 +81,12 @@ const CreateNewClassCard = () => {
   );
 };
 
-const ClassCardComponent = ({ name, teacherId, id }: ClassCard) => {
-  let { url } = useRouteMatch();
-  let toPath = `${url}class/${id}`;
+const ClassCardDisplay = ({
+  name,
+  teacherId,
+  id,
+  toPath,
+}: ClassCard & { toPath: string }) => {
   return (
     <Link to={toPath}>
       <CardWrapper>
@@ -78,4 +98,4 @@ const ClassCardComponent = ({ name, teacherId, id }: ClassCard) => {
   );
 };
 
-export default ClassList;
+export default ClassListProvider;
