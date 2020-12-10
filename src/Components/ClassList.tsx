@@ -10,6 +10,7 @@ export interface ClassCard {
   name: string;
   teacherId: string;
   id: string;
+  isActive?: boolean;
 }
 
 const ClassListProvider = ({
@@ -31,7 +32,7 @@ const ClassListProvider = ({
     <React.Fragment>
       {error && <strong>Error: {JSON.stringify(error)}</strong>}
       {loading && <span>Loading...</span>}
-      <ClassListGrid classes={classes} />
+      <ClassListGrid classes={classes?.filter((e) => e.isActive === true)} />
     </React.Fragment>
   );
 };

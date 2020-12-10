@@ -18,6 +18,7 @@ export interface Student {
   gender: string;
   isEditable?: boolean;
   id?: string;
+  isActive?: boolean;
 }
 
 const FIRST_NAME_DEFAULT = "";
@@ -52,21 +53,21 @@ const CreateClass = () => {
         <p>Teacher: {user?.displayName}</p>
       </section>
       <section>
-        <Grid>
-          <Formik
-            initialValues={{ students: students, className: "" }}
-            onSubmit={async (values) => {
-              submit({
-                students: values.students,
-                className: values.className,
-                teacherId: user?.uid,
-                history: history,
-              });
-            }}
-            validationSchema={FormSchema}
-          >
-            {({ values }) => (
-              <Form>
+        <Formik
+          initialValues={{ students: students, className: "" }}
+          onSubmit={async (values) => {
+            createStudentAndClass({
+              students: values.students,
+              className: values.className,
+              teacherId: user?.uid,
+              history: history,
+            });
+          }}
+          validationSchema={FormSchema}
+        >
+          {({ values }) => (
+            <Form>
+              <Grid>
                 <label htmlFor="className">Class Name </label>
                 <Field name={"className"}></Field>
                 <ErrorMessage
@@ -75,7 +76,7 @@ const CreateClass = () => {
                 />
                 <FieldArray name="students">
                   {({ insert, remove, push }) => (
-                    <div>
+                    <React.Fragment>
                       {values.students.map((student: Student, index) => {
                         if (student.isEditable && student.isEditable === true) {
                           return (
@@ -144,13 +145,13 @@ const CreateClass = () => {
                       <div>
                         <button type="submit">Submit</button>
                       </div>
-                    </div>
+                    </React.Fragment>
                   )}
                 </FieldArray>
-              </Form>
-            )}
-          </Formik>
-        </Grid>
+              </Grid>
+            </Form>
+          )}
+        </Formik>
       </section>
       {/* <h1>results:</h1>
       <pre>{JSON.stringify(submission, undefined, 2)}</pre> */}
@@ -173,7 +174,7 @@ const CreateClass = () => {
  *   history,
  * }
  */
-const submit = async ({
+const createStudentAndClass = async ({
   students,
   className,
   teacherId,
@@ -188,6 +189,7 @@ const submit = async ({
     const classIDRef = await firestore.collection(CLASSES_COLLECTION).add({
       name: className,
       teacherId: teacherId,
+      isActive: true,
       ...modifyAndCreateTimestamp(),
     });
     try {
@@ -199,6 +201,7 @@ const submit = async ({
           lastName: student.lastName,
           gender: student.gender,
           classID: classIDRef.id,
+          isActive: true,
           // Using the reference data type is apparently more inconvenient than strings rn...
           //   https://stackoverflow.com/questions/46568850/what-is-firebase-firestore-reference-data-type-good-for
           //   classID: firestore.doc(`${CLASSES_COLLECTION}/${classIDRef.id}`),
@@ -220,37 +223,39 @@ export const InlineError = ({ text }: { text: string }) => (
   <i className="text-red-700">{text}</i>
 );
 
+export const NewStudentSchema = Yup.object().shape({
+  firstName: Yup.string()
+    .min(2, "Too Short!")
+    .max(70, "Too Long!")
+    .required("Required"),
+  lastName: Yup.string()
+    .min(2, "Too Short!")
+    .max(70, "Too Long!")
+    .required("Required"),
+  gender: Yup.string().ensure().required("Required"),
+});
+
+export const studentsValidation = {
+  students: Yup.array().of(NewStudentSchema),
+};
+
 const FormSchema = Yup.object().shape({
-  students: Yup.array().of(
-    Yup.object().shape({
-      firstName: Yup.string()
-        .min(2, "Too Short!")
-        .max(70, "Too Long!")
-        .required("Required"),
-      lastName: Yup.string()
-        .min(2, "Too Short!")
-        .max(70, "Too Long!")
-        .required("Required"),
-      gender: Yup.string().ensure().required("Required"),
-    })
-  ),
+  ...studentsValidation,
   className: Yup.string()
     .min(2, "Too Short!")
     .max(70, "Too Long!")
     .required("Required"),
 });
 
-const AddStudentButton = ({ push }: { push: any }) => {
+export const AddStudentButton = ({ push }: { push: any }) => {
   return (
-    <Grid>
-      <div
-        onClick={(e) => {
-          push(...produceDefaults(1));
-        }}
-      >
-        <div>+ Add Student</div>
-      </div>
-    </Grid>
+    <div
+      onClick={(e) => {
+        push(...produceDefaults(1));
+      }}
+    >
+      <div>+ Add Student</div>
+    </div>
   );
 };
 
