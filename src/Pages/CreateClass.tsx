@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import React, { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -115,13 +116,7 @@ const CreateClass = () => {
                                   render={(msg) => <InlineError text={msg} />}
                                 />
                               </div>
-                              <div
-                                onClick={(e) => {
-                                  remove(index);
-                                }}
-                              >
-                                <div>remove button</div>
-                              </div>
+                              <RemoveButton remove={remove} index={index} />
                             </React.Fragment>
                           );
                         } else {
@@ -130,13 +125,7 @@ const CreateClass = () => {
                               <div>{student.firstName}</div>
                               <div>{student.lastName}</div>
                               <div>{student.gender}</div>
-                              <div
-                                onClick={(e) => {
-                                  remove(index);
-                                }}
-                              >
-                                <div>remove button</div>
-                              </div>
+                              <RemoveButton remove={remove} index={index} />
                             </Grid>
                           );
                         }
@@ -156,6 +145,25 @@ const CreateClass = () => {
       {/* <h1>results:</h1>
       <pre>{JSON.stringify(submission, undefined, 2)}</pre> */}
     </section>
+  );
+};
+
+export const RemoveButton = ({
+  remove,
+  index,
+}: {
+  remove: Function;
+  index: number;
+}) => {
+  return (
+    <div
+      onClick={(e) => {
+        remove(index);
+      }}
+      className={clsx(["cursor-pointer"])}
+    >
+      <div>remove button</div>
+    </div>
   );
 };
 

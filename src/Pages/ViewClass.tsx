@@ -21,6 +21,7 @@ import {
 import {
   AddStudentButton,
   InlineError,
+  RemoveButton,
   Student,
   studentsValidation,
 } from "./CreateClass";
@@ -197,11 +198,11 @@ export const ViewClassDisplay = ({
         }}
         validationSchema={StudentsSchema}
       >
-        {({ values, resetForm }) => (
+        {({ values }) => (
           <Form>
             <Grid styles={["grid-cols-4"]}>
               <FieldArray name="students">
-                {({ insert, remove, push }) => (
+                {({ remove, push }) => (
                   <React.Fragment>
                     {values.students.map((student: Student, index) => {
                       if (student.isEditable && student.isEditable === true) {
@@ -241,13 +242,7 @@ export const ViewClassDisplay = ({
                                 render={(msg) => <InlineError text={msg} />}
                               />
                             </div>
-                            <div
-                              onClick={(e) => {
-                                remove(index);
-                              }}
-                            >
-                              <div>remove button</div>
-                            </div>
+                            <RemoveButton remove={remove} index={index} />
                           </React.Fragment>
                         );
                       } else {
@@ -256,13 +251,7 @@ export const ViewClassDisplay = ({
                             <div>{student.firstName}</div>
                             <div>{student.lastName}</div>
                             <div>{student.gender}</div>
-                            <div
-                              onClick={(e) => {
-                                remove(index);
-                              }}
-                            >
-                              <div>remove button</div>
-                            </div>
+                            <RemoveButton remove={remove} index={index} />
                           </React.Fragment>
                         );
                       }
