@@ -1,4 +1,6 @@
 import firebase from "firebase";
+import React from "react";
+import GoogleButton from "react-google-button";
 import { auth } from "./App";
 
 export default function SignIn() {
@@ -9,9 +11,13 @@ export default function SignIn() {
 
   return (
     <>
-      <button className="sign-in" onClick={signInWithGoogle}>
+      {/* <button className="sign-in" onClick={signInWithGoogle}>
         Sign in with Google
-      </button>
+      </button> */}
+      <GoogleButton
+        type="dark" // can be light or dark
+        onClick={signInWithGoogle}
+      />
     </>
   );
 }

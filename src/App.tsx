@@ -30,32 +30,20 @@ export const analytics = firebase.analytics();
 
 function App() {
   const [user] = useAuthState(auth);
+  const imgURL = user?.photoURL ?? "";
 
   return (
     <div className="App">
       <SignOut />
-      <section>
-        {user ? (
+      {user ? (
+        <section>
           <Main />
-        ) : (
-          // <header className="App-header">
-          //   <img src={logo} className="App-logo" alt="logo" />
-          //   <p>
-          //     Edit <code>src/App.tsx</code> and save to reload.
-          //   </p>
-          //   <Test />
-          //   <a
-          //     className="App-link"
-          //     href="https://reactjs.org"
-          //     target="_blank"
-          //     rel="noopener noreferrer"
-          //   >
-          //     Learn React
-          //   </a>
-          // </header>
+        </section>
+      ) : (
+        <section className={"flex h-screen justify-center items-center"}>
           <SignIn />
-        )}
-      </section>
+        </section>
+      )}
     </div>
   );
 }
