@@ -30,11 +30,24 @@ export const analytics = firebase.analytics();
 
 function App() {
   const [user] = useAuthState(auth);
-  const imgURL = user?.photoURL ?? "";
 
   return (
-    <div className="App">
-      <SignOut />
+    <div className="App mx-8">
+      {user ? (
+        <div className={"flex justify-between items-center"}>
+          <div className={"flex  items-center"}>
+            <img
+              src={user?.photoURL ?? ""}
+              alt={"Profile Pic"}
+              className={"rounded-full h-8 w-8"}
+            />
+            <h2 className={"ml-2"}>Welcome {user?.displayName}!</h2>
+          </div>
+
+          <SignOut />
+        </div>
+      ) : null}
+
       {user ? (
         <section>
           <Main />

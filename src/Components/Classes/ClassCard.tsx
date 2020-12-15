@@ -19,8 +19,6 @@ export const ClassCard = ({
     <Link to={toPath}>
       <CardWrapper>
         <h1>{name}</h1>
-        <h1>teacherId:{teacherId}</h1>
-        <h1>id:{id}</h1>
       </CardWrapper>
     </Link>
   );

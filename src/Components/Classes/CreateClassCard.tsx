@@ -6,7 +6,7 @@ export const CreateClassCard = ({ toPath }: { toPath: string }) => {
   return (
     <Link to={toPath}>
       <CardWrapper>
-        <p>Create class</p>
+        <p>Create New Class</p>
       </CardWrapper>
     </Link>
   );

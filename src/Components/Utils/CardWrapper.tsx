@@ -9,6 +9,11 @@ const cardClasses = [
   "transition",
   "hover:scale-110",
   "motion-reduce:transform-none",
+  "w-full",
+  "h-20",
+  "flex",
+  "justify-center",
+  "items-center",
 ];
 
 const CardWrapper = ({ children, onClick, styles = [] }: any) => {
