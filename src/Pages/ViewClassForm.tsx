@@ -19,6 +19,7 @@ import {
   STUDENT_COLLECTION,
 } from "../utils";
 import { Student, studentsValidation } from "./CreateClassForm";
+import RemoveButtonIcon from "../Components/Utils/RemoveButtonIcon";
 
 interface TeachingClass {
   name: string;
@@ -108,7 +109,26 @@ export const ViewClassForm = ({
   const history = useHistory();
   return (
     <React.Fragment>
-      <h1>{className}</h1>
+      <div className="flex justify-between my-5">
+        <h1 className={"text-2xl"}>{className}</h1>
+
+        <div
+          className={clsx("cursor-pointer")}
+          onClick={(e) => {
+            if (
+              window.confirm(
+                "Are you sure you want to delete this class? This cannot be undone"
+              )
+            ) {
+              removeClass(classID);
+              redirectTo(history, "/");
+            }
+          }}
+        >
+          <h1>DELETE CLASS</h1>
+        </div>
+      </div>
+
       {error && <strong>Error: {JSON.stringify(error)}</strong>}
       {loading && <span>Loading...</span>}
       <table
@@ -144,7 +164,12 @@ export const ViewClassForm = ({
                   Report Link
                 </td>
                 <td
-                  className={clsx("cursor-pointer")}
+                  className={clsx(
+                    "cursor-pointer",
+                    "flex",
+                    "flex",
+                    "justify-center items-center"
+                  )}
                   onClick={(e) => {
                     if (
                       window.confirm(
@@ -155,29 +180,13 @@ export const ViewClassForm = ({
                     }
                   }}
                 >
-                  remove button
+                  <RemoveButtonIcon />
                 </td>
               </tr>
             );
           })}
         </tbody>
       </table>
-
-      <div
-        className={clsx("cursor-pointer")}
-        onClick={(e) => {
-          if (
-            window.confirm(
-              "Are you sure you want to delete this class? This cannot be undone"
-            )
-          ) {
-            removeClass(classID);
-            redirectTo(history, "/");
-          }
-        }}
-      >
-        <h1>DELETE CLASS</h1>
-      </div>
 
       <Formik
         initialValues={{ students: [] }}

@@ -19,6 +19,9 @@ const StudentForm = ({ students }: { students: Student[] }) => (
               return (
                 <React.Fragment>
                   <div className={clsx(["flex", "flex-col"])}>
+                    <label htmlFor={`students[${index}].firstName`}>
+                      First Name
+                    </label>
                     <Field name={`students[${index}].firstName`}></Field>
                     <ErrorMessage
                       name={`students[${index}].firstName`}
@@ -26,6 +29,9 @@ const StudentForm = ({ students }: { students: Student[] }) => (
                     />
                   </div>
                   <div className={clsx(["flex", "flex-col"])}>
+                    <label htmlFor={`students[${index}].lastName`}>
+                      Last Name
+                    </label>
                     <Field name={`students[${index}].lastName`}></Field>
                     <ErrorMessage
                       name={`students[${index}].lastName`}
@@ -34,6 +40,7 @@ const StudentForm = ({ students }: { students: Student[] }) => (
                   </div>
 
                   <div className={clsx(["flex", "flex-col"])}>
+                    <label htmlFor={`students[${index}].gender`}>Gender</label>
                     <Field as="select" name={`students[${index}].gender`}>
                       <option value="">Select...</option>
                       <option value="Male">Male</option>
