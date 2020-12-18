@@ -98,7 +98,7 @@ function Home() {
           <Route path={`/student/:studentID`}>
             <ViewStudent />
           </Route>
-          <Route exact path="/">
+          <Route path="/">
             <HomePage />
           </Route>
         </Switch>
