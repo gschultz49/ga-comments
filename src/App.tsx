@@ -28,6 +28,12 @@ export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 export const analytics = firebase.analytics();
 
+const useEmulatorMode = process.env.NODE_ENV !== "production";
+if (useEmulatorMode) {
+  console.log("CONNECTING TO EMULATOR IN EMULATOR MODE");
+  firestore.useEmulator("localhost", 8080);
+}
+
 function App() {
   const [user] = useAuthState(auth);
 
@@ -41,7 +47,10 @@ function App() {
               alt={"Profile Pic"}
               className={"rounded-full h-8 w-8"}
             />
-            <h2 className={"ml-2"}>Welcome {user?.displayName}!</h2>
+            <h2 className={"ml-2"}>
+              Welcome {user?.displayName}!{" "}
+              {useEmulatorMode === true ? "DEV" : "PROD"}
+            </h2>
           </div>
 
           <SignOut />
