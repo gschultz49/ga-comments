@@ -1,36 +1,44 @@
 import { auth } from "./App";
 import logout from "./img/logout.svg";
 import home from "./img/homeIcon.svg";
+import { useHistory } from "react-router-dom";
+import { redirectTo } from "./utils";
 
 export function SignOut() {
   return (
-    <div
-      className={
-        "flex cursor-pointer hover:bg-red-500 rounded-full p-1 space-x-2"
-      }
-      onClick={() => auth.signOut()}
-    >
+    <NavItemContainer>
       <img src={logout} alt="logout button" className={"h-full w-6"}></img>
       <button className="sign-out">Sign Out</button>
-    </div>
+    </NavItemContainer>
   );
 }
 
+export const NavItemContainer = ({
+  onClick = () => auth.signOut(),
+  children,
+}: any) => (
+  <div
+    className={
+      "flex cursor-pointer hover:bg-red-500 rounded-full p-1 space-x-2 items-center"
+    }
+    onClick={onClick}
+  >
+    {children}
+  </div>
+);
+
 export const HomeButton = () => {
+  const history = useHistory();
+  console.log(history);
   return (
-    <div
-      className={
-        "flex cursor-pointer hover:bg-red-500 rounded-full p-1 space-x-2"
-      }
-      onClick={() => auth.signOut()}
-    >
+    <NavItemContainer onClick={() => redirectTo(history, "/")}>
       <img
         src={home}
         alt="home navigation button"
         className={"h-full w-6"}
       ></img>
-      <button className="sign-out">Home</button>
-    </div>
+      <button className="home">Home</button>
+    </NavItemContainer>
   );
 };
 

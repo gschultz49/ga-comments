@@ -6,7 +6,6 @@ import cross from "../../img/Cross.svg";
 export const CreateClassCard = ({ toPath }: { toPath: string }) => {
   return (
     <CardWrapper to={toPath} styles={["newCardBorder"]}>
-      {/* <p>Create New Class</p> */}
       <img src={cross} alt={"Add button"}></img>
     </CardWrapper>
   );
