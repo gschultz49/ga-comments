@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useRouteMatch } from "react-router-dom";
+import { useRouteMatch } from "react-router-dom";
 import CardWrapper from "../Utils/CardWrapper";
 
 export interface IClassCard {
@@ -16,11 +16,9 @@ export const ClassCard = ({
   toPath,
 }: IClassCard & { toPath: string }) => {
   return (
-    <Link to={toPath}>
-      <CardWrapper>
-        <h1>{name}</h1>
-      </CardWrapper>
-    </Link>
+    <CardWrapper to={toPath}>
+      <h1>{name}</h1>
+    </CardWrapper>
   );
 };
 

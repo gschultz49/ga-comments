@@ -12,7 +12,7 @@ import HomePage from "./Pages/Home";
 import ViewClassForm from "./Pages/ViewClassForm";
 import ViewStudent from "./Pages/ViewStudent";
 import SignIn from "./Signin";
-import SignOut from "./Signout";
+import NavOptions from "./NavOptions";
 
 firebase.initializeApp({
   apiKey: "AIzaSyCwxiDrVBzpiEtz5rL9eJt6bZIdymyTQ30",
@@ -30,7 +30,7 @@ export const analytics = firebase.analytics();
 
 const useEmulatorMode = process.env.NODE_ENV !== "production";
 if (useEmulatorMode) {
-  console.log("CONNECTING TO EMULATOR IN EMULATOR MODE");
+  console.log("CONNECTING TO EMULATOR");
   firestore.useEmulator("localhost", 8080);
 }
 
@@ -53,7 +53,7 @@ function App() {
             </h2>
           </div>
 
-          <SignOut />
+          <NavOptions />
         </div>
       ) : null}
 
