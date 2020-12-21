@@ -1,14 +1,13 @@
 import React from "react";
-import { Link, useRouteMatch } from "react-router-dom";
+import { useRouteMatch } from "react-router-dom";
 import CardWrapper from "../Utils/CardWrapper";
+import cross from "../../img/Cross.svg";
 
 export const CreateClassCard = ({ toPath }: { toPath: string }) => {
   return (
-    <Link to={toPath}>
-      <CardWrapper>
-        <p>Create class</p>
-      </CardWrapper>
-    </Link>
+    <CardWrapper to={toPath} styles={["newCardBorder"]}>
+      <img src={cross} alt={"Add button"}></img>
+    </CardWrapper>
   );
 };
 

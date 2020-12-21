@@ -1,10 +1,9 @@
-import firebase from "firebase";
 import { firestore } from "./App";
 
 export const CLASSES_COLLECTION = "classes";
 export const STUDENT_COLLECTION = "students";
 
-export const getTimestamp = () => firebase.firestore.Timestamp.now();
+export const getTimestamp = () => new Date().getTime();
 export const createWithTimestamp = () => ({ createdAt: getTimestamp() });
 export const modifyTimestamp = () => ({ modifiedAt: getTimestamp() });
 export const modifyAndCreateTimestamp = () => ({

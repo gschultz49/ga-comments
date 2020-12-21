@@ -6,9 +6,8 @@ import ClassList from "../Components/Classes/ClassGrid";
 export default function HomePage() {
   const [user] = useAuthState(auth);
   return (
-    <div>
-      <h2>Welcome {user?.displayName}!</h2>
-      <h1>Classes</h1>
+    <div className={"my-5"}>
+      <h1 className={"text-3xl py-5 text-center sm:text-left"}>Your Classes</h1>
       <ClassList teacherId={user?.uid} />
       {/* <h1>Students</h1>
       <StudentList /> */}

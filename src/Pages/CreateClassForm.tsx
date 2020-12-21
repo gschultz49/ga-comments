@@ -6,6 +6,7 @@ import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
 import { auth, firestore } from "../App";
 import StudentForm from "../Components/Students/StudentForm";
+import RemoveButtonIcon from "../Components/Utils/RemoveButtonIcon";
 import {
   CLASSES_COLLECTION,
   modifyAndCreateTimestamp,
@@ -97,9 +98,11 @@ export const RemoveButton = ({
       onClick={(e) => {
         remove(index);
       }}
-      className={clsx(["cursor-pointer"])}
+      className={clsx(["flex", "justify-center items-center"])}
     >
-      <div>remove button</div>
+      <div>
+        <RemoveButtonIcon />
+      </div>
     </div>
   );
 };

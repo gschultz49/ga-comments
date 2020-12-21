@@ -12,7 +12,7 @@ import HomePage from "./Pages/Home";
 import ViewClassForm from "./Pages/ViewClassForm";
 import ViewStudent from "./Pages/ViewStudent";
 import SignIn from "./Signin";
-import SignOut from "./Signout";
+import NavOptions from "./NavOptions";
 
 firebase.initializeApp({
   apiKey: "AIzaSyCwxiDrVBzpiEtz5rL9eJt6bZIdymyTQ30",
@@ -28,35 +28,47 @@ export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 export const analytics = firebase.analytics();
 
+const useEmulatorMode = process.env.NODE_ENV !== "production";
+if (useEmulatorMode) {
+  console.log("CONNECTING TO EMULATOR");
+  firestore.useEmulator("localhost", 8080);
+}
+
 function App() {
   const [user] = useAuthState(auth);
 
   return (
-    <div className="App">
-      <SignOut />
-      <section>
+    <Router>
+      <div className="App mx-8">
         {user ? (
-          <Main />
+          <div className={"flex justify-between items-center"}>
+            <div className={"flex  items-center"}>
+              <img
+                src={user?.photoURL ?? ""}
+                alt={"Profile Pic"}
+                className={"rounded-full h-8 w-8"}
+              />
+              <h2 className={"ml-2"}>
+                Welcome {user?.displayName}!{" "}
+                {useEmulatorMode === true ? "DEV" : "PROD"}
+              </h2>
+            </div>
+
+            <NavOptions />
+          </div>
+        ) : null}
+
+        {user ? (
+          <section>
+            <Main />
+          </section>
         ) : (
-          // <header className="App-header">
-          //   <img src={logo} className="App-logo" alt="logo" />
-          //   <p>
-          //     Edit <code>src/App.tsx</code> and save to reload.
-          //   </p>
-          //   <Test />
-          //   <a
-          //     className="App-link"
-          //     href="https://reactjs.org"
-          //     target="_blank"
-          //     rel="noopener noreferrer"
-          //   >
-          //     Learn React
-          //   </a>
-          // </header>
-          <SignIn />
+          <section className={"flex h-screen justify-center items-center"}>
+            <SignIn />
+          </section>
         )}
-      </section>
-    </div>
+      </div>
+    </Router>
   );
 }
 
@@ -70,39 +82,37 @@ const Main = () => {
 
 function Home() {
   return (
-    <Router>
-      <div>
-        <ul>
-          {/* <li>
+    <div>
+      <ul>
+        {/* <li>
             <Link to="/class/123">Class View 123</Link>
           </li> */}
-        </ul>
+      </ul>
 
-        <hr />
+      <hr />
 
-        {/*
+      {/*
           A <Switch> looks through all its children <Route>
           elements and renders the first one whose path
           matches the current URL. Use a <Switch> any time
           you have multiple routes, but you want only one
           of them to render at a time
         */}
-        <Switch>
-          <Route path={`/class/createClass`}>
-            <CreateClassForm />
-          </Route>
-          <Route path={`/class/:classID`}>
-            <ViewClassForm />
-          </Route>
-          <Route path={`/student/:studentID`}>
-            <ViewStudent />
-          </Route>
-          <Route exact path="/">
-            <HomePage />
-          </Route>
-        </Switch>
-      </div>
-    </Router>
+      <Switch>
+        <Route path={`/class/createClass`}>
+          <CreateClassForm />
+        </Route>
+        <Route path={`/class/:classID`}>
+          <ViewClassForm />
+        </Route>
+        <Route path={`/student/:studentID`}>
+          <ViewStudent />
+        </Route>
+        <Route path="/">
+          <HomePage />
+        </Route>
+      </Switch>
+    </div>
   );
 }
 
