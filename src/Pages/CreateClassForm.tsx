@@ -21,6 +21,7 @@ export interface Student {
   firstName: string;
   lastName: string;
   gender: string;
+  classID: string[];
   isEditable?: boolean;
   id?: string;
   isActive?: boolean;
@@ -34,6 +35,7 @@ const DEFAULT_STUDENT = (): Student => ({
   firstName: FIRST_NAME_DEFAULT,
   lastName: LAST_NAME_DEFAULT,
   gender: GENDER_DEFAULT,
+  classID: [],
   isEditable: true,
 });
 
@@ -154,6 +156,18 @@ export const RemoveButton = ({
   );
 };
 
+export const createStudentObject = (student: any, classID: any) => ({
+  firstName: student.firstName,
+  lastName: student.lastName,
+  gender: student.gender,
+  classID: [classID],
+  isActive: true,
+  // Using the reference data type is apparently more inconvenient than strings rn...
+  //   https://stackoverflow.com/questions/46568850/what-is-firebase-firestore-reference-data-type-good-for
+  //   classID: firestore.doc(`${CLASSES_COLLECTION}/${classIDRef.id}`),
+  ...modifyAndCreateTimestamp(),
+});
+
 /**
  * Handles the Submission of a class and its students
  *
@@ -185,7 +199,7 @@ const createStudentAndClass = async ({
   history: any; // react router type
 }) => {
   try {
-    const reportTypes = await firestore
+    await firestore
       .collection(REPORT_TYPES_COLLECTION)
       .where("groupType", "==", "CLASS")
       .get()
@@ -207,17 +221,7 @@ const createStudentAndClass = async ({
           const batch = firestore.batch();
           students.forEach((student) => {
             var docRef = firestore.collection(STUDENT_COLLECTION).doc(); //automatically generate unique id
-            batch.set(docRef, {
-              firstName: student.firstName,
-              lastName: student.lastName,
-              gender: student.gender,
-              classID: classIDRef.id,
-              isActive: true,
-              // Using the reference data type is apparently more inconvenient than strings rn...
-              //   https://stackoverflow.com/questions/46568850/what-is-firebase-firestore-reference-data-type-good-for
-              //   classID: firestore.doc(`${CLASSES_COLLECTION}/${classIDRef.id}`),
-              ...modifyAndCreateTimestamp(),
-            });
+            batch.set(docRef, createStudentObject(student, classIDRef.id));
           });
           await batch.commit();
         } catch (err) {

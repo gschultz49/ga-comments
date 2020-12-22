@@ -33,14 +33,17 @@ export const StudentCardGrid = ({
 }) => {
   return (
     <Grid>
-      {students?.map(({ firstName, lastName, gender, id }: Student) => (
-        <StudentCard
-          firstName={firstName}
-          lastName={lastName}
-          gender={gender}
-          id={id}
-        />
-      ))}
+      {students?.map(
+        ({ firstName, lastName, gender, id, classID }: Student) => (
+          <StudentCard
+            firstName={firstName}
+            lastName={lastName}
+            gender={gender}
+            classID={classID}
+            id={id}
+          />
+        )
+      )}
     </Grid>
   );
 };

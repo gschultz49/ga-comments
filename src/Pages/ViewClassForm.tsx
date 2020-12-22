@@ -2,6 +2,7 @@ import clsx from "clsx";
 import firebase from "firebase";
 import { Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
+import { useCollectionData } from "react-firebase-hooks/firestore";
 import { useHistory, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import { firestore } from "../App";
@@ -9,15 +10,19 @@ import StudentForm from "../Components/Students/StudentForm";
 import RemoveButtonIcon from "../Components/Utils/RemoveButtonIcon";
 import {
   CLASSES_COLLECTION,
-  modifyAndCreateTimestamp,
   redirectTo,
   removeClass,
   removeStudentFromClass,
   REPORT_TYPES_COLLECTION,
   STUDENT_COLLECTION,
 } from "../utils";
-import { Student, studentsValidation } from "./CreateClassForm";
+import {
+  createStudentObject,
+  Student,
+  studentsValidation,
+} from "./CreateClassForm";
 
+// eslint-disable-next-line
 interface TeachingClass {
   name: string;
   teacherId: string;
@@ -39,18 +44,8 @@ const addStudentToExistingClass = async ({
   try {
     const batch = firestore.batch();
     students.forEach((student) => {
-      var docRef = firestore.collection(STUDENT_COLLECTION).doc(); //automatically generate unique id
-      batch.set(docRef, {
-        firstName: student.firstName,
-        lastName: student.lastName,
-        gender: student.gender,
-        classID: classID,
-        isActive: true,
-        // Using the reference data type is apparently more inconvenient than strings rn...
-        //   https://stackoverflow.com/questions/46568850/what-is-firebase-firestore-reference-data-type-good-for
-        //   classID: firestore.doc(`${CLASSES_COLLECTION}/${classIDRef.id}`),
-        ...modifyAndCreateTimestamp(),
-      });
+      var studentRef = firestore.collection(STUDENT_COLLECTION).doc(); //automatically generate unique id
+      batch.set(studentRef, createStudentObject(student, classID));
     });
     await batch.commit();
   } catch (err) {
@@ -66,9 +61,6 @@ interface ReportType {
 const ViewClassFormProvider = () => {
   let { classID }: { classID: string } = useParams();
 
-  const [students, setStudents] = useState<
-    firebase.firestore.DocumentData[] | undefined
-  >(undefined);
   const [targetClass, setTargetClass] = useState<
     firebase.firestore.DocumentData | undefined
   >(undefined);
@@ -78,13 +70,6 @@ const ViewClassFormProvider = () => {
 
   useEffect(() => {
     async function getter() {
-      const studentSnapshot = await firebase
-        .firestore()
-        .collection(STUDENT_COLLECTION)
-        .where("classID", "==", classID)
-        .where("isActive", "==", true)
-        .get();
-
       const classAndReports = await firebase
         .firestore()
         .doc(`${CLASSES_COLLECTION}/${classID}`)
@@ -105,7 +90,6 @@ const ViewClassFormProvider = () => {
           return { targetClassDocumentSnapshot, reportTypesQuerySnapshot };
         });
 
-      setStudents(studentSnapshot.docs.map((e) => e.data()));
       setTargetClass(classAndReports.targetClassDocumentSnapshot.data());
       setReportTypes(
         classAndReports.reportTypesQuerySnapshot.docs.map((e) => e.data())
@@ -113,6 +97,19 @@ const ViewClassFormProvider = () => {
     }
     getter();
   }, [classID]);
+
+  // eslint-disable-next-line
+  const [students, loading, error] = useCollectionData<Student>(
+    firebase
+      .firestore()
+      .collection(STUDENT_COLLECTION)
+      .where("classID", "array-contains", classID)
+      .where("isActive", "==", true),
+    {
+      idField: "id",
+      snapshotListenOptions: { includeMetadataChanges: true },
+    }
+  );
 
   return (
     <ViewClassForm
@@ -138,7 +135,6 @@ export const ViewClassForm = ({
   classID: string | undefined;
 }) => {
   const history = useHistory();
-  console.log(students, reportTypes, className);
   return (
     <React.Fragment>
       <div className="flex justify-between my-5">
