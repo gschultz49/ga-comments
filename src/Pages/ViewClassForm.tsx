@@ -63,47 +63,12 @@ interface ReportType {
   id?: string;
 }
 
-// Then we'll fetch user data from this API
-const loadData = (classID: string) => async () =>
-  // await fetch("https://jsonplaceholder.typicode.com/users")
-  //   .then((res) => (res.ok ? res : Promise.reject(res)))
-  //   .then((res) => res.json());
-  {
-    const result = await firebase
-      .firestore()
-      .collection(STUDENT_COLLECTION)
-      .where("classID", "==", classID)
-      .where("isActive", "==", true)
-      .get()
-      .then((studentsSnapShot) => {
-        return firebase
-          .firestore()
-          .doc(`${CLASSES_COLLECTION}/${classID}`)
-          .get()
-          .then((targetClassSnapshot) => {
-            return firebase
-              .firestore()
-              .collection(REPORT_TYPES_COLLECTION)
-              .where(
-                firebase.firestore.FieldPath.documentId(),
-                "in",
-                targetClassSnapshot?.data()?.reportTypes
-              );
-          });
-      });
-    return result;
-
-    // return {
-    //   students,
-    //   targetClass: targetClass,
-    //   reportsPerClass,
-    // };
-  };
-
 const ViewClassFormProvider = () => {
   let { classID }: { classID: string } = useParams();
 
-  const [students, setStudents] = useState<Student[] | undefined>(undefined);
+  const [students, setStudents] = useState<
+    firebase.firestore.DocumentData[] | undefined
+  >(undefined);
   const [targetClass, setTargetClass] = useState<
     firebase.firestore.DocumentData | undefined
   >(undefined);
@@ -120,13 +85,15 @@ const ViewClassFormProvider = () => {
         .where("isActive", "==", true)
         .get();
 
-      const targetClassSnapshot = await firebase
+      const classAndReports = await firebase
         .firestore()
         .doc(`${CLASSES_COLLECTION}/${classID}`)
         .get()
-        .then(async (targetClassSnapshot) => {
-          const targetClassData = targetClassSnapshot.get("reportTypes");
-          const reportTypesRefs = await firebase
+        .then(async (targetClassDocumentSnapshot) => {
+          const targetClassData = targetClassDocumentSnapshot.get(
+            "reportTypes"
+          );
+          const reportTypesQuerySnapshot = await firebase
             .firestore()
             .collection(REPORT_TYPES_COLLECTION)
             .where(
@@ -135,75 +102,25 @@ const ViewClassFormProvider = () => {
               targetClassData
             )
             .get();
-          return { targetClassSnapshot, reportTypesRefs };
+          return { targetClassDocumentSnapshot, reportTypesQuerySnapshot };
         });
-      const students: any = [];
-      studentSnapshot.forEach((student) => students.push(student.data()));
 
-      // setAllData({
-      //   students,
-      //   // targetClass: tc,
-      //   targetClass: targetClassSnapshot.targetClassSnapshot.data(),
-      //   reportTypes: targetClassSnapshot.reportTypesRefs.docs.map((e) =>
-      //     e.data()
-      //   ),
-      // });
-      setStudents(students);
-      setTargetClass(targetClassSnapshot.targetClassSnapshot.data());
+      setStudents(studentSnapshot.docs.map((e) => e.data()));
+      setTargetClass(classAndReports.targetClassDocumentSnapshot.data());
       setReportTypes(
-        targetClassSnapshot.reportTypesRefs.docs.map((e) => e.data())
+        classAndReports.reportTypesQuerySnapshot.docs.map((e) => e.data())
       );
     }
     getter();
   }, [classID]);
 
-  // const [students, loading, error] = useCollectionData<Student>(
-  //   firebase
-  //     .firestore()
-  //     .collection(STUDENT_COLLECTION)
-  //     .where("classID", "==", classID)
-  //     .where("isActive", "==", true),
-  //   {
-  //     idField: "id",
-  //     snapshotListenOptions: { includeMetadataChanges: true },
-  //   }
-  // );
-  // const [targetClass] = useDocumentData<TeachingClass>(
-  //   firebase.firestore().doc(`${CLASSES_COLLECTION}/${classID}`),
-  //   {
-  //     idField: "id",
-  //     snapshotListenOptions: { includeMetadataChanges: true },
-  //   }
-  // );
-
-  // const [reportTypes] = useDocumentData<ReportType[]>(
-  //   firebase
-  //     .firestore()
-  //     .collection(REPORT_TYPES_COLLECTION)
-  //     .where(
-  //       firebase.firestore.FieldPath.documentId(),
-  //       "in",
-  //       targetClass ? targetClass.reportTypes : [""]
-  //     ),
-  //   {
-  //     idField: "id",
-  //     snapshotListenOptions: { includeMetadataChanges: true },
-  //   }
-  // );
-  // const reportTypes: ReportType[] | undefined = [];
-
-  // console.log(students, reportTypes, targetClass);
-
   return (
     <ViewClassForm
       classID={classID}
       className={targetClass?.name}
-      // error={error}
-      // loading={loading}
       students={students}
       reportTypes={reportTypes}
     />
-    // <p>pls</p>
   );
 };
 
@@ -216,7 +133,7 @@ export const ViewClassForm = ({
   classID,
 }: {
   className: string | undefined;
-  students: Student[] | undefined;
+  students: firebase.firestore.DocumentData | undefined;
   reportTypes: firebase.firestore.DocumentData | undefined;
   classID: string | undefined;
 }) => {
