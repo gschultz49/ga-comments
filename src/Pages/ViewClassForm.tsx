@@ -16,6 +16,7 @@ import {
   redirectTo,
   removeClass,
   removeStudentFromClass,
+  REPORT_TYPES_COLLECTION,
   STUDENT_COLLECTION,
 } from "../utils";
 import { Student, studentsValidation } from "./CreateClassForm";
@@ -26,6 +27,9 @@ interface TeachingClass {
   teacherId: string;
   createdAt: Date;
   modifiedAt: Date;
+  reportTypes: string[];
+  classStartDate: number;
+  classEndDate: number;
   id?: string;
 }
 
@@ -58,6 +62,11 @@ const addStudentToExistingClass = async ({
   }
 };
 
+interface ReportType {
+  name: string;
+  id?: string;
+}
+
 const ViewClassFormProvider = () => {
   let { classID }: { classID: string } = useParams();
 
@@ -80,6 +89,22 @@ const ViewClassFormProvider = () => {
     }
   );
 
+  // const [reportTypes] = useDocumentData<ReportType[]>(
+  //   firebase
+  //     .firestore()
+  //     .collection(REPORT_TYPES_COLLECTION)
+  //     .where(
+  //       firebase.firestore.FieldPath.documentId(),
+  //       "in",
+  //       targetClass ? targetClass.reportTypes : [""]
+  //     ),
+  //   {
+  //     idField: "id",
+  //     snapshotListenOptions: { includeMetadataChanges: true },
+  //   }
+  // );
+  const reportTypes: ReportType[] | undefined = [];
+
   return (
     <ViewClassForm
       classID={classID}
@@ -87,6 +112,7 @@ const ViewClassFormProvider = () => {
       error={error}
       loading={loading}
       students={students}
+      reportTypes={reportTypes}
     />
   );
 };
@@ -98,6 +124,7 @@ export const ViewClassForm = ({
   error = undefined,
   loading = false,
   students,
+  reportTypes,
   classID,
 }: {
   className: string | undefined;
@@ -105,12 +132,16 @@ export const ViewClassForm = ({
   loading: boolean;
   students: Student[] | undefined;
   classID: string | undefined;
+  reportTypes: ReportType[] | undefined;
 }) => {
   const history = useHistory();
   return (
     <React.Fragment>
       <div className="flex justify-between my-5">
         <h1 className={"text-2xl"}>{className}</h1>
+        {reportTypes?.map((e) => {
+          return <p>e.name</p>;
+        })}
 
         <div
           className={clsx("cursor-pointer")}

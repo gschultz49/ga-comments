@@ -13,6 +13,7 @@ import {
   CLASSES_COLLECTION,
   modifyAndCreateTimestamp,
   redirectTo,
+  REPORT_TYPES_COLLECTION,
   STUDENT_COLLECTION,
 } from "../utils";
 
@@ -184,38 +185,48 @@ const createStudentAndClass = async ({
   history: any; // react router type
 }) => {
   try {
-    const classIDRef = await firestore.collection(CLASSES_COLLECTION).add({
-      name: className,
-      teacherId: teacherId,
-      isActive: true,
-      classStartDate,
-      classEndDate,
-      ...modifyAndCreateTimestamp(),
-    });
-    try {
-      const batch = firestore.batch();
-      students.forEach((student) => {
-        var docRef = firestore.collection(STUDENT_COLLECTION).doc(); //automatically generate unique id
-        batch.set(docRef, {
-          firstName: student.firstName,
-          lastName: student.lastName,
-          gender: student.gender,
-          classID: classIDRef.id,
+    const reportTypes = await firestore
+      .collection(REPORT_TYPES_COLLECTION)
+      .where("groupType", "==", "CLASS")
+      .get()
+      .then(async function (snapshot) {
+        const reportIds = snapshot.docs.map(function (documentSnapshot) {
+          return documentSnapshot.id;
+        });
+        const classIDRef = await firestore.collection(CLASSES_COLLECTION).add({
+          name: className,
+          teacherId: teacherId,
           isActive: true,
-          // Using the reference data type is apparently more inconvenient than strings rn...
-          //   https://stackoverflow.com/questions/46568850/what-is-firebase-firestore-reference-data-type-good-for
-          //   classID: firestore.doc(`${CLASSES_COLLECTION}/${classIDRef.id}`),
+          classStartDate,
+          classEndDate,
+          reportTypes: reportIds,
+          groupType: "CLASS", // for future ideas
           ...modifyAndCreateTimestamp(),
         });
+        try {
+          const batch = firestore.batch();
+          students.forEach((student) => {
+            var docRef = firestore.collection(STUDENT_COLLECTION).doc(); //automatically generate unique id
+            batch.set(docRef, {
+              firstName: student.firstName,
+              lastName: student.lastName,
+              gender: student.gender,
+              classID: classIDRef.id,
+              isActive: true,
+              // Using the reference data type is apparently more inconvenient than strings rn...
+              //   https://stackoverflow.com/questions/46568850/what-is-firebase-firestore-reference-data-type-good-for
+              //   classID: firestore.doc(`${CLASSES_COLLECTION}/${classIDRef.id}`),
+              ...modifyAndCreateTimestamp(),
+            });
+          });
+          await batch.commit();
+        } catch (err) {
+          console.error("Error inserting students", err);
+        }
       });
-      await batch.commit();
-    } catch (err) {
-      console.error("Error inserting students", err);
-    }
   } catch (err) {
     console.error("Error inserting class", err);
   }
-  console.log("Insertion Successful!");
   redirectTo(history, "/");
 };
 

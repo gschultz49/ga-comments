@@ -2,6 +2,7 @@ import { firestore } from "./App";
 
 export const CLASSES_COLLECTION = "classes";
 export const STUDENT_COLLECTION = "students";
+export const REPORT_TYPES_COLLECTION = "reportTypes"
 
 export const getTimestamp = () => new Date().getTime();
 export const createWithTimestamp = () => ({ createdAt: getTimestamp() });
