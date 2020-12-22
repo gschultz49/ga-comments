@@ -85,7 +85,8 @@ const CreateClassForm = () => {
       >
         {({ values }) => (
           <Form>
-            <div className="w-32">
+            <div className="w-64 mt-4 mb-16">
+              <h1 className="text-3xl pb-6">Create Class</h1>
               <Field component={FloatingLabelInput} name="className">
                 Class Name
               </Field>
@@ -93,30 +94,37 @@ const CreateClassForm = () => {
                 name={`className`}
                 render={(msg) => <InlineError text={msg} />}
               />
-            </div>
-            <div className={"flex justify-items-auto"}>
-              <Field
-                name="classStartDate"
-                placeholder={classStartDate.toString()}
-                className={"w-12 text-center"}
-              ></Field>
-              <ErrorMessage
-                name={`classStartDate`}
-                render={(msg) => <InlineError text={msg} />}
-              />
-              <h1>-</h1>
-              <Field
-                name="classEndDate"
-                placeholder={classEndDate.toString()}
-                className={"w-12 text-center"}
-              ></Field>
-              <ErrorMessage
-                name={`classEndDate`}
-                render={(msg) => <InlineError text={msg} />}
-              />
+              <div className={"flex justify-items-auto"}>
+                <div className={"flex-cols"}>
+                  <Field
+                    name="classStartDate"
+                    placeholder={classStartDate.toString()}
+                    className={"w-32 text-xl text-center"}
+                  ></Field>
+                  <ErrorMessage
+                    name={`classStartDate`}
+                    render={(msg) => <InlineError text={msg} />}
+                  />
+                </div>
+                <h1>-</h1>
+                <div className="flex-cols">
+                  <Field
+                    name="classEndDate"
+                    placeholder={classEndDate.toString()}
+                    className={"w-32 text-xl text-center"}
+                  ></Field>
+                  <ErrorMessage
+                    name={`classEndDate`}
+                    render={(msg) => <InlineError text={msg} />}
+                  />
+                </div>
+              </div>
             </div>
 
-            <StudentForm students={values.students} />
+            <div>
+              <h1 className="text-3xl pb-6">Students</h1>
+              <StudentForm students={values.students} />
+            </div>
           </Form>
         )}
       </Formik>
@@ -240,11 +248,11 @@ const FormSchema = Yup.object().shape({
   classStartDate: Yup.string()
     .min(4, "Too Short!")
     .max(4, "Too Long!")
-    .required("End Year Required"),
+    .required("Start Year Required"),
   classEndDate: Yup.string()
     .min(4, "Too Short!")
     .max(4, "Too Long!")
-    .required("Start Year Required")
+    .required("End Year Required")
     .test("is-greater", "End Year should be greater", function (value) {
       const { classStartDate } = this.parent;
       if (value !== undefined) {
@@ -252,17 +260,7 @@ const FormSchema = Yup.object().shape({
       } else {
         return false;
       }
-      // return moment(value, "HH:mm").isSameOrAfter(moment(start, "HH:mm"));
     }),
-
-  // classStartDate: Yup.string().required("Start year cannot be empty"),
-  // classEndDate: Yup.string()
-  //   .required("End year cannot be empty")
-  //   .test("is-greater", "end year should be greater", function (value: any) {
-  //     const { classStartDate } = this.parent;
-  //     return classStartDate > value;
-  //     // return moment(value, "HH:mm").isSameOrAfter(moment(start, "HH:mm"));
-  //   }),
 });
 
 export const AddStudentButton = ({ push }: { push: any }) => {
