@@ -102,8 +102,14 @@ const loadData = (classID: string) => async () =>
 
 const ViewClassFormProvider = () => {
   let { classID }: { classID: string } = useParams();
-  // const { data, error, isLoading } = useAsync({ promiseFn: loadData(classID) });
-  const [allData, setAllData] = useState({});
+
+  const [students, setStudents] = useState<Student[] | undefined>(undefined);
+  const [targetClass, setTargetClass] = useState<
+    firebase.firestore.DocumentData | undefined
+  >(undefined);
+  const [reportTypes, setReportTypes] = useState<
+    firebase.firestore.DocumentData | undefined
+  >(undefined);
 
   useEffect(() => {
     async function getter() {
@@ -133,22 +139,23 @@ const ViewClassFormProvider = () => {
         });
       const students: any = [];
       studentSnapshot.forEach((student) => students.push(student.data()));
-      // const tc: any = [];
-      // targetClassSnapshot.forEach((targetClass) => tc.push(targetClass.data()));
 
-      setAllData({
-        students,
-        // targetClass: tc,
-        targetClass: targetClassSnapshot.targetClassSnapshot.data(),
-        reportTypes: targetClassSnapshot.reportTypesRefs.docs.map((e) =>
-          e.data()
-        ),
-      });
+      // setAllData({
+      //   students,
+      //   // targetClass: tc,
+      //   targetClass: targetClassSnapshot.targetClassSnapshot.data(),
+      //   reportTypes: targetClassSnapshot.reportTypesRefs.docs.map((e) =>
+      //     e.data()
+      //   ),
+      // });
+      setStudents(students);
+      setTargetClass(targetClassSnapshot.targetClassSnapshot.data());
+      setReportTypes(
+        targetClassSnapshot.reportTypesRefs.docs.map((e) => e.data())
+      );
     }
     getter();
   }, [classID]);
-
-  console.log(allData);
 
   // const [students, loading, error] = useCollectionData<Student>(
   //   firebase
@@ -185,16 +192,18 @@ const ViewClassFormProvider = () => {
   // );
   // const reportTypes: ReportType[] | undefined = [];
 
+  // console.log(students, reportTypes, targetClass);
+
   return (
-    // <ViewClassForm
-    //   classID={classID}
-    //   className={targetClass?.name}
-    //   error={error}
-    //   loading={loading}
-    //   students={students}
-    //   reportTypes={reportTypes}
-    // />
-    <p>pls</p>
+    <ViewClassForm
+      classID={classID}
+      className={targetClass?.name}
+      // error={error}
+      // loading={loading}
+      students={students}
+      reportTypes={reportTypes}
+    />
+    // <p>pls</p>
   );
 };
 
@@ -202,28 +211,24 @@ const StudentsSchema = Yup.object().shape(studentsValidation);
 
 export const ViewClassForm = ({
   className,
-  error = undefined,
-  loading = false,
   students,
   reportTypes,
   classID,
 }: {
   className: string | undefined;
-  error: object | undefined;
-  loading: boolean;
   students: Student[] | undefined;
+  reportTypes: firebase.firestore.DocumentData | undefined;
   classID: string | undefined;
-  reportTypes: ReportType[] | undefined;
 }) => {
   const history = useHistory();
+  console.log(students, reportTypes, className);
   return (
     <React.Fragment>
       <div className="flex justify-between my-5">
         <h1 className={"text-2xl"}>{className}</h1>
-        {reportTypes?.map((e) => {
-          return <p>e.name</p>;
+        {reportTypes?.map((e: ReportType) => {
+          return <p>{e.name}</p>;
         })}
-
         <div
           className={clsx("cursor-pointer")}
           onClick={(e) => {
@@ -241,8 +246,8 @@ export const ViewClassForm = ({
         </div>
       </div>
 
-      {error && <strong>Error: {JSON.stringify(error)}</strong>}
-      {loading && <span>Loading...</span>}
+      {/* {error && <strong>Error: {JSON.stringify(error)}</strong>}
+      {loading && <span>Loading...</span>} */}
       <table
         className="table-fixed w-full text-left"
         style={{ borderCollapse: "separate", borderSpacing: "0 1em;" }}
