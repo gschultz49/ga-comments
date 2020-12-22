@@ -10,7 +10,7 @@ import {
 import Grid from "../Utils/Grid";
 
 const StudentForm = ({ students }: { students: Student[] }) => (
-  <Grid styles={["grid-cols-4"]}>
+  <Grid styles={["grid-cols-1", "sm:grid-cols-4"]}>
     <FieldArray name="students">
       {({ remove, push }) => (
         <React.Fragment>
@@ -19,20 +19,24 @@ const StudentForm = ({ students }: { students: Student[] }) => (
               return (
                 <React.Fragment>
                   <div className={clsx(["flex", "flex-col"])}>
-                    <label htmlFor={`students[${index}].firstName`}>
+                    <Field
+                      component={FloatingLabelInput}
+                      name={`students[${index}].firstName`}
+                    >
                       First Name
-                    </label>
-                    <Field name={`students[${index}].firstName`}></Field>
+                    </Field>
                     <ErrorMessage
                       name={`students[${index}].firstName`}
                       render={(msg) => <InlineError text={msg} />}
                     />
                   </div>
                   <div className={clsx(["flex", "flex-col"])}>
-                    <label htmlFor={`students[${index}].lastName`}>
+                    <Field
+                      component={FloatingLabelInput}
+                      name={`students[${index}].lastName`}
+                    >
                       Last Name
-                    </label>
-                    <Field name={`students[${index}].lastName`}></Field>
+                    </Field>
                     <ErrorMessage
                       name={`students[${index}].lastName`}
                       render={(msg) => <InlineError text={msg} />}
@@ -40,8 +44,14 @@ const StudentForm = ({ students }: { students: Student[] }) => (
                   </div>
 
                   <div className={clsx(["flex", "flex-col"])}>
-                    <label htmlFor={`students[${index}].gender`}>Gender</label>
-                    <Field as="select" name={`students[${index}].gender`}>
+                    <label htmlFor={`students[${index}].gender`}></label>
+                    <Field
+                      as="select"
+                      name={`students[${index}].gender`}
+                      className={
+                        "relative border rounded bg-gray-600 text-white text-opacity-50 mb-2 border-white border-opacity-25"
+                      }
+                    >
                       <option value="">Select...</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
@@ -77,5 +87,47 @@ const StudentForm = ({ students }: { students: Student[] }) => (
     </FieldArray>
   </Grid>
 );
+
+// https://codepen.io/chrsgrrtt/pen/MWypegr
+export function FloatingLabelInput({
+  field,
+  form,
+  type = "text",
+  name,
+  children,
+}: any) {
+  const [active, setActive] = React.useState(false);
+
+  function updateFormAndUI(e: any) {
+    const { name } = field;
+    const { setFieldValue } = form;
+    setFieldValue(name, e.target.value);
+    setActive(!!e.target.value);
+  }
+  return (
+    <div className="relative border rounded bg-gray-600 text-white mb-2 border-white border-opacity-25">
+      <input
+        className={clsx([
+          "outline-none w-full rounded bg-transparent text-sm transition-all duration-200 ease-in-out p-2",
+          active ? "pt-6" : "",
+        ])}
+        id={name}
+        name={name}
+        type={type}
+        {...field}
+        onChange={updateFormAndUI}
+      />
+      <label
+        className={clsx([
+          "absolute top-0 left-0 flex items-center text-white text-opacity-50 p-2 transition-all duration-200 ease-in-out",
+          active ? "text-xs" : "text-sm",
+        ])}
+        htmlFor={name}
+      >
+        {children}
+      </label>
+    </div>
+  );
+}
 
 export default StudentForm;

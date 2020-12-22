@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 const cardClasses = [
   "shadow-lg",
   "rounded-2xl",
-  "bg-purple-200",
   "cursor-pointer",
   "transform",
   "transition",
@@ -16,6 +15,7 @@ const cardClasses = [
   "flex",
   "justify-center",
   "items-center",
+  "card-rect",
 ];
 
 const CardWrapper = ({ to, children, ...rest }: any) => {

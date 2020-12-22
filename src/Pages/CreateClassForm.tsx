@@ -5,7 +5,9 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
 import { auth, firestore } from "../App";
-import StudentForm from "../Components/Students/StudentForm";
+import StudentForm, {
+  FloatingLabelInput,
+} from "../Components/Students/StudentForm";
 import RemoveButtonIcon from "../Components/Utils/RemoveButtonIcon";
 import {
   CLASSES_COLLECTION,
@@ -42,46 +44,90 @@ const produceDefaults = (n = 1, defaultObj = DEFAULT_STUDENT): Student[] => {
   return defaults;
 };
 
+const getClassDates = (
+  todaysDate = new Date()
+): { classStartDate: number; classEndDate: number } => {
+  const year = todaysDate.getFullYear();
+  if (todaysDate.getDate() > 6) {
+    return { classStartDate: year, classEndDate: year + 1 };
+  } else {
+    return { classStartDate: year - 1, classEndDate: year };
+  }
+};
+
 const CreateClassForm = () => {
   const [user] = useAuthState(auth);
   const history = useHistory();
 
-  const studentsData = produceDefaults(1);
-
+  const studentsData = produceDefaults(3);
+  const { classStartDate, classEndDate } = getClassDates();
   const [students] = useState<Student[]>(studentsData); // come from some network request
   return (
     <section>
-      <section>
-        <p>Teacher: {user?.displayName}</p>
-      </section>
-      <section>
-        <Formik
-          initialValues={{ students: students, className: "" }}
-          onSubmit={async (values) => {
-            createStudentAndClass({
-              students: values.students,
-              className: values.className,
-              teacherId: user?.uid,
-              history: history,
-            });
-          }}
-          validationSchema={FormSchema}
-        >
-          {({ values }) => (
-            <Form>
-              <label htmlFor="className">Class Name </label>
-              <Field name={"className"}></Field>
+      <Formik
+        initialValues={{
+          students: students,
+          className: "",
+          classStartDate,
+          classEndDate,
+        }}
+        onSubmit={async (values) => {
+          createStudentAndClass({
+            students: values.students,
+            className: values.className,
+            classStartDate: values.classStartDate,
+            classEndDate: values.classEndDate,
+            teacherId: user?.uid,
+            history: history,
+          });
+        }}
+        validationSchema={FormSchema}
+      >
+        {({ values }) => (
+          <Form>
+            <div className="w-64 mt-4 mb-16">
+              <h1 className="text-3xl pb-6">Create Class</h1>
+              <Field component={FloatingLabelInput} name="className">
+                Class Name
+              </Field>
               <ErrorMessage
                 name={`className`}
                 render={(msg) => <InlineError text={msg} />}
               />
+              <div className={"flex justify-items-auto"}>
+                <div className={"flex-cols"}>
+                  <Field
+                    name="classStartDate"
+                    placeholder={classStartDate.toString()}
+                    className={"w-32 text-xl text-center"}
+                  ></Field>
+                  <ErrorMessage
+                    name={`classStartDate`}
+                    render={(msg) => <InlineError text={msg} />}
+                  />
+                </div>
+                <h1>-</h1>
+                <div className="flex-cols">
+                  <Field
+                    name="classEndDate"
+                    placeholder={classEndDate.toString()}
+                    className={"w-32 text-xl text-center"}
+                  ></Field>
+                  <ErrorMessage
+                    name={`classEndDate`}
+                    render={(msg) => <InlineError text={msg} />}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h1 className="text-3xl pb-6">Students</h1>
               <StudentForm students={values.students} />
-            </Form>
-          )}
-        </Formik>
-      </section>
-      {/* <h1>results:</h1>
-      <pre>{JSON.stringify(submission, undefined, 2)}</pre> */}
+            </div>
+          </Form>
+        )}
+      </Formik>
     </section>
   );
 };
@@ -126,11 +172,15 @@ const createStudentAndClass = async ({
   students,
   className,
   teacherId,
+  classStartDate,
+  classEndDate,
   history,
 }: {
   students: Student[];
   className: string;
   teacherId: string | undefined;
+  classStartDate: number;
+  classEndDate: number;
   history: any; // react router type
 }) => {
   try {
@@ -138,6 +188,8 @@ const createStudentAndClass = async ({
       name: className,
       teacherId: teacherId,
       isActive: true,
+      classStartDate,
+      classEndDate,
       ...modifyAndCreateTimestamp(),
     });
     try {
@@ -192,7 +244,23 @@ const FormSchema = Yup.object().shape({
   className: Yup.string()
     .min(2, "Too Short!")
     .max(70, "Too Long!")
-    .required("Required"),
+    .required("Class Name Required"),
+  classStartDate: Yup.string()
+    .min(4, "Too Short!")
+    .max(4, "Too Long!")
+    .required("Start Year Required"),
+  classEndDate: Yup.string()
+    .min(4, "Too Short!")
+    .max(4, "Too Long!")
+    .required("End Year Required")
+    .test("is-greater", "End Year should be greater", function (value) {
+      const { classStartDate } = this.parent;
+      if (value !== undefined) {
+        return classStartDate < value;
+      } else {
+        return false;
+      }
+    }),
 });
 
 export const AddStudentButton = ({ push }: { push: any }) => {

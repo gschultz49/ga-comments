@@ -8,7 +8,7 @@ export function SignOut() {
   return (
     <NavItemContainer>
       <img src={logout} alt="logout button" className={"h-full w-6"}></img>
-      <button className="sign-out">Sign Out</button>
+      <p className="sign-out">Sign Out</p>
     </NavItemContainer>
   );
 }
@@ -29,7 +29,6 @@ export const NavItemContainer = ({
 
 export const HomeButton = () => {
   const history = useHistory();
-  console.log(history);
   return (
     <NavItemContainer onClick={() => redirectTo(history, "/")}>
       <img
@@ -37,7 +36,7 @@ export const HomeButton = () => {
         alt="home navigation button"
         className={"h-full w-6"}
       ></img>
-      <button className="home">Home</button>
+      <p className="home">Home</p>
     </NavItemContainer>
   );
 };
