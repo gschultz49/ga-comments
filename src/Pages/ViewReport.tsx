@@ -1,11 +1,20 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import firebase from "firebase";
 import {
   CLASSES_COLLECTION,
   REPORTS_COLLECTION,
   STUDENT_COLLECTION,
 } from "../utils";
+import Grid from "../Components/Utils/Grid";
+import CardWrapper from "../Components/Utils/CardWrapper";
+import { Student } from "./CreateClassForm";
+import linkIcon from "../img/linkIcon-dark.svg";
+import { ViewStudentGrid } from "./ViewClassForm";
+
+const goToStudentFormById = (classID: string, reportID: string) => (
+  studentID: string
+) => `/class/${classID}/report/${reportID}/student/${studentID}`;
 
 const ViewReport = () => {
   let { classID, reportID }: any = useParams();
@@ -33,7 +42,7 @@ const ViewReport = () => {
           .then((studentSnapshot) => {
             const reportData: firebase.firestore.DocumentData[] = [];
             studentSnapshot.forEach(async (student) => {
-              //   console.log(classID, student.id, classData?.reportTypes);
+              // console.log(classID, student.id, classData?.reportTypes);
               const reportsSnapshots = await firebase
                 .firestore()
                 .collection(REPORTS_COLLECTION)
@@ -47,15 +56,23 @@ const ViewReport = () => {
 
               setReports(reportData);
             });
-            setStudents(studentSnapshot.docs.map((e) => e.data()));
+            setStudents(
+              studentSnapshot.docs.map((e) => ({ ...e.data(), id: e.id }))
+            );
           });
       });
   }, []);
 
   return (
-    <h1>
-      Viewing Report: {reportID} for class: {classID}
-    </h1>
+    <div>
+      <h1>
+        Viewing Interim: {reportID} for class: {classID}
+      </h1>
+      <ViewStudentGrid
+        students={students}
+        cardNav={goToStudentFormById(classID, reportID)}
+      />
+    </div>
   );
 };
 

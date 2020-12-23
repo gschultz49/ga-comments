@@ -38,12 +38,14 @@ const ClassGrid = ({
   newClass?: boolean;
 }) => {
   return (
-    <Grid>
-      {newClass ? <CreateClassCardProvider /> : null}
-      {classes?.map((c) => (
-        <ClassCardProvider name={c.name} teacherId={c.teacherId} id={c.id} />
-      ))}
-    </Grid>
+    <div className={"flex justify-center sm:justify-between "}>
+      <Grid styles={[["sm:grid-cols-4", "gap-32"]]}>
+        {newClass ? <CreateClassCardProvider /> : null}
+        {classes?.map((c) => (
+          <ClassCardProvider name={c.name} teacherId={c.teacherId} id={c.id} />
+        ))}
+      </Grid>
+    </div>
   );
 };
 
