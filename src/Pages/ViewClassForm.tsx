@@ -7,7 +7,13 @@ import { useHistory, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import { firestore } from "../App";
 import StudentForm from "../Components/Students/StudentForm";
-import RemoveButtonIcon from "../Components/Utils/RemoveButtonIcon";
+import CardWrapper, { RectangularCard } from "../Components/Utils/CardWrapper";
+import Grid from "../Components/Utils/Grid";
+import linkIcon from "../img/linkIcon-dark.svg";
+import removeIcon from "../img/removeIcon.svg";
+import pencilIcon from "../img/pencilIcon.svg";
+import checkmarkIcon from "../img/checkmarkIcon-black.svg";
+
 import {
   CLASSES_COLLECTION,
   redirectTo,
@@ -22,17 +28,16 @@ import {
   studentsValidation,
 } from "./CreateClassForm";
 
-// eslint-disable-next-line
-interface TeachingClass {
-  name: string;
-  teacherId: string;
-  createdAt: Date;
-  modifiedAt: Date;
-  reportTypes: string[];
-  classStartDate: number;
-  classEndDate: number;
-  id?: string;
-}
+// interface TeachingClass {
+//   name: string;
+//   teacherId: string;
+//   createdAt: Date;
+//   modifiedAt: Date;
+//   reportTypes: string[];
+//   classStartDate: number;
+//   classEndDate: number;
+//   id?: string;
+// }
 
 const addStudentToExistingClass = async ({
   students,
@@ -69,34 +74,32 @@ const ViewClassFormProvider = () => {
   >(undefined);
 
   useEffect(() => {
-    async function getter() {
-      const classAndReports = await firebase
-        .firestore()
-        .doc(`${CLASSES_COLLECTION}/${classID}`)
-        .get()
-        .then(async (targetClassDocumentSnapshot) => {
-          const targetClassData = targetClassDocumentSnapshot.get(
-            "reportTypes"
-          );
-          const reportTypesQuerySnapshot = await firebase
-            .firestore()
-            .collection(REPORT_TYPES_COLLECTION)
-            .where(
-              firebase.firestore.FieldPath.documentId(),
-              "in",
-              targetClassData
-            )
-            .get();
-          return { targetClassDocumentSnapshot, reportTypesQuerySnapshot };
-        });
+    const classAndReports = firebase
+      .firestore()
+      .doc(`${CLASSES_COLLECTION}/${classID}`)
+      // here we listen for any realtime changes to this Class
+      .onSnapshot(async (targetClassDocumentSnapshot) => {
+        // we need to get the report type ID array for this class, then look those up
+        // inside the report types collection
+        const targetClassReportTypeRows = targetClassDocumentSnapshot.get(
+          "reportTypes"
+        );
+        const reportTypesQuerySnapshot = await firebase
+          .firestore()
+          .collection(REPORT_TYPES_COLLECTION)
+          .where(
+            firebase.firestore.FieldPath.documentId(),
+            "in",
+            targetClassReportTypeRows
+          )
+          .get();
+        // once we have all the data we need, add it to the state
+        setTargetClass(targetClassDocumentSnapshot.data());
+        setReportTypes(reportTypesQuerySnapshot.docs.map((e) => e.data()));
+      });
 
-      setTargetClass(classAndReports.targetClassDocumentSnapshot.data());
-      setReportTypes(
-        classAndReports.reportTypesQuerySnapshot.docs.map((e) => e.data())
-      );
-    }
-    getter();
-  }, [classID]);
+    return () => classAndReports();
+  }, []);
 
   // eslint-disable-next-line
   const [students, loading, error] = useCollectionData<Student>(
@@ -135,13 +138,58 @@ export const ViewClassForm = ({
   classID: string | undefined;
 }) => {
   const history = useHistory();
+  const [editingClassName, setEditingClassName] = useState("");
+  const [isEditable, setIsEditable] = useState(false);
   return (
     <React.Fragment>
       <div className="flex justify-between my-5">
-        <h1 className={"text-2xl"}>{className}</h1>
-        {reportTypes?.map((e: ReportType) => {
-          return <p>{e.name}</p>;
-        })}
+        <div className={"flex flex-row"}>
+          {isEditable ? (
+            <React.Fragment>
+              <input
+                type={"text"}
+                placeholder={className}
+                value={editingClassName}
+                onChange={(e) => {
+                  setEditingClassName(e.target.value);
+                }}
+              ></input>
+              <img
+                className={"cursor-pointer"}
+                src={checkmarkIcon}
+                alt={"Check Icon"}
+                onClick={(e) => {
+                  setIsEditable((prev) => !prev);
+                  const classRef = firebase
+                    .firestore()
+                    .doc(`${CLASSES_COLLECTION}/${classID}`)
+                    .set(
+                      {
+                        name: editingClassName,
+                      },
+                      { merge: true }
+                    );
+
+                  console.log("switch to read only mode");
+                }}
+              ></img>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <h1 className={"text-2xl mr-4"}>{className}</h1>
+              <img
+                className={"cursor-pointer"}
+                src={pencilIcon}
+                alt={"Pencil Icon"}
+                onClick={(e) => {
+                  setIsEditable((prev) => !prev);
+                  console.log("switch to edit mode");
+                }}
+              ></img>
+            </React.Fragment>
+          )}
+        </div>
+
         <div
           className={clsx("cursor-pointer")}
           onClick={(e) => {
@@ -159,9 +207,55 @@ export const ViewClassForm = ({
         </div>
       </div>
 
-      {/* {error && <strong>Error: {JSON.stringify(error)}</strong>}
-      {loading && <span>Loading...</span>} */}
-      <table
+      <Grid styles={["sm:grid-cols-4", "gap-32"]}>
+        {reportTypes?.map((e: ReportType) => {
+          return (
+            <CardWrapper to={""} Wrapper={RectangularCard} styles={["h-32"]}>
+              <p>{e.name}</p>
+            </CardWrapper>
+          );
+        })}
+      </Grid>
+
+      <section className={"mt-16"}>
+        <h1 className={"text-2xl"}>Students</h1>
+        <Grid styles={["mt-8", "sm:grid-cols-5", "gap-2"]}>
+          {students?.map(({ firstName, lastName, id }: Student) => (
+            <CardWrapper to={`/student/${id}`}>
+              <React.Fragment>
+                <div className={"flex flex-col justify-center items-center "}>
+                  <img
+                    className="absolute top-4 right-4 h-6 w-6 text-center"
+                    src={removeIcon}
+                    alt={"remove"}
+                    onClick={(e) => {
+                      // we dont want to navigate on click of this button
+                      e.preventDefault();
+                      if (
+                        window.confirm(
+                          "Are you sure you want to delete this student from this class?"
+                        )
+                      ) {
+                        removeStudentFromClass(id);
+                      }
+                    }}
+                  ></img>
+                  <div className={"flex py-3"}>
+                    <p>
+                      {firstName} {lastName}
+                    </p>
+                  </div>
+                  <div className={"flex py-3"}>
+                    <h1 className={"pr-2"}>View</h1>
+                    <img src={linkIcon} alt={"Link Icon"}></img>
+                  </div>
+                </div>
+              </React.Fragment>
+            </CardWrapper>
+          ))}
+        </Grid>
+      </section>
+      {/* <table
         className="table-fixed w-full text-left"
         style={{ borderCollapse: "separate", borderSpacing: "0 1em;" }}
       >
@@ -216,7 +310,7 @@ export const ViewClassForm = ({
             );
           })}
         </tbody>
-      </table>
+      </table> */}
 
       <Formik
         initialValues={{ students: [] }}
