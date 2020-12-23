@@ -106,7 +106,7 @@ const ViewClassFormProvider = () => {
       });
 
     return () => classAndReports();
-  }, []);
+  }, [classID]);
 
   // eslint-disable-next-line
   const [students, loading, error] = useCollectionData<Student>(
@@ -167,7 +167,7 @@ export const ViewClassForm = ({
                 alt={"Check Icon"}
                 onClick={(e) => {
                   setIsEditable((prev) => !prev);
-                  const classRef = firebase
+                  firebase
                     .firestore()
                     .doc(`${CLASSES_COLLECTION}/${classID}`)
                     .set(
