@@ -1,15 +1,11 @@
-import { useParams } from "react-router-dom";
-import React, { useEffect, useState } from "react";
 import firebase from "firebase";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import {
   CLASSES_COLLECTION,
   REPORTS_COLLECTION,
   STUDENT_COLLECTION,
 } from "../utils";
-import Grid from "../Components/Utils/Grid";
-import CardWrapper from "../Components/Utils/CardWrapper";
-import { Student } from "./CreateClassForm";
-import linkIcon from "../img/linkIcon-dark.svg";
 import { ViewStudentGrid } from "./ViewClassForm";
 
 const goToStudentFormById = (classID: string, reportID: string) => (
@@ -23,6 +19,7 @@ const ViewReport = () => {
   const [students, setStudents] = useState<
     firebase.firestore.DocumentData | undefined
   >(undefined);
+  // eslint-disable-next-line
   const [reports, setReports] = useState<
     firebase.firestore.DocumentData | undefined
   >(undefined);
@@ -33,7 +30,7 @@ const ViewReport = () => {
       .get()
       .then((classDocumentSnapshot) => {
         const classData = classDocumentSnapshot.data();
-        const students = firebase
+        firebase
           .firestore()
           .collection(STUDENT_COLLECTION)
           .where("classID", "array-contains", classID)
@@ -61,7 +58,7 @@ const ViewReport = () => {
             );
           });
       });
-  }, []);
+  }, [classID]);
 
   return (
     <div>
