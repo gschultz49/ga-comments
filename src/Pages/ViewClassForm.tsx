@@ -95,7 +95,14 @@ const ViewClassFormProvider = () => {
           .get();
         // once we have all the data we need, add it to the state
         setTargetClass(targetClassDocumentSnapshot.data());
-        setReportTypes(reportTypesQuerySnapshot.docs.map((e) => e.data()));
+        setReportTypes(
+          reportTypesQuerySnapshot.docs.map((e) => {
+            return {
+              id: e.id,
+              ...e.data(),
+            };
+          })
+        );
       });
 
     return () => classAndReports();
@@ -209,8 +216,13 @@ export const ViewClassForm = ({
 
       <Grid styles={["sm:grid-cols-4", "gap-32"]}>
         {reportTypes?.map((e: ReportType) => {
+          console.log(e);
           return (
-            <CardWrapper to={""} Wrapper={RectangularCard} styles={["h-32"]}>
+            <CardWrapper
+              to={`/class/${classID}/report/${e.id}`}
+              Wrapper={RectangularCard}
+              styles={["h-32"]}
+            >
               <p>{e.name}</p>
             </CardWrapper>
           );
@@ -255,81 +267,26 @@ export const ViewClassForm = ({
           ))}
         </Grid>
       </section>
-      {/* <table
-        className="table-fixed w-full text-left"
-        style={{ borderCollapse: "separate", borderSpacing: "0 1em;" }}
-      >
-        <thead>
-          <tr>
-            <th className="w-1/5">First Name</th>
-            <th className="w-1/5">Last Name</th>
-            <th className="w-1/5">Gender</th>
-            <th className="w-1/5">Report</th>
-            <th className="w-1/5"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {students?.map(({ firstName, lastName, gender, id }: Student) => {
-            const reportIsDone = false;
-            return (
-              <tr
-                className={clsx(reportIsDone ? "bg-green-200" : "bg-red-200")}
-                key={id}
-              >
-                <td>{firstName}</td>
-                <td>{lastName}</td>
-                <td>{gender}</td>
-                <td
-                  className={clsx("cursor-pointer")}
-                  onClick={(e) => {
-                    redirectTo(history, `/student/${id}`);
-                  }}
-                >
-                  Report Link
-                </td>
-                <td
-                  className={clsx(
-                    "cursor-pointer",
-                    "flex",
-                    "flex",
-                    "justify-center items-center"
-                  )}
-                  onClick={(e) => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to delete this student from this class?"
-                      )
-                    ) {
-                      removeStudentFromClass(id);
-                    }
-                  }}
-                >
-                  <RemoveButtonIcon />
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table> */}
-
-      <Formik
-        initialValues={{ students: [] }}
-        onSubmit={async (values, { resetForm }) => {
-          console.log("submitted", values);
-          await addStudentToExistingClass({
-            students: values.students,
-            classID: classID,
-          });
-          resetForm();
-        }}
-        validationSchema={StudentsSchema}
-      >
-        {({ values }) => (
-          <Form>
-            <StudentForm students={values.students} />
-          </Form>
-        )}
-      </Formik>
+      <section className={"my-12"}>
+        <Formik
+          initialValues={{ students: [] }}
+          onSubmit={async (values, { resetForm }) => {
+            console.log("submitted", values);
+            await addStudentToExistingClass({
+              students: values.students,
+              classID: classID,
+            });
+            resetForm();
+          }}
+          validationSchema={StudentsSchema}
+        >
+          {({ values }) => (
+            <Form>
+              <StudentForm students={values.students} />
+            </Form>
+          )}
+        </Formik>
+      </section>
     </React.Fragment>
   );
 };
