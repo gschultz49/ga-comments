@@ -26,9 +26,9 @@ const ViewReport = () => {
   const [students, setStudents] = useState<
     firebase.firestore.DocumentData | undefined
   >(undefined);
-  const [reports, setReports] = useState<
-    firebase.firestore.DocumentData | undefined
-  >(undefined);
+  const [reports, setReports] = useState<Map<string, boolean> | undefined>(
+    undefined
+  );
   const [className, setClassName] = useState<
     firebase.firestore.DocumentData | undefined
   >(undefined);
@@ -55,8 +55,7 @@ const ViewReport = () => {
           .collection(STUDENT_COLLECTION)
           .where("classID", "array-contains", classID)
           .where("isActive", "==", true)
-          .get()
-          .then((studentSnapshot) => {
+          .onSnapshot((studentSnapshot) => {
             const reportData: firebase.firestore.DocumentData[] = [];
             studentSnapshot.forEach(async (student) => {
               // console.log(classID, student.id, classData?.reportTypes);
@@ -71,7 +70,9 @@ const ViewReport = () => {
                 reportData.push(report.data());
               });
 
-              setReports(new Set(reportData.map((e) => e.studentID)));
+              setReports(
+                new Map(reportData.map((e) => [e.studentID, e.isComplete]))
+              );
             });
             setStudents(
               studentSnapshot.docs.map((e) => ({ ...e.data(), id: e.id }))
@@ -109,30 +110,31 @@ const DisplayReportCards = ({
   cardNav = goToStudentFormById,
 }: {
   students: firebase.firestore.DocumentData | undefined;
-  reports: firebase.firestore.DocumentData | undefined;
+  reports: Map<string, boolean> | undefined;
   cardNav?: Function;
 }) => {
   return (
     <Grid styles={["mt-8", "sm:grid-cols-5", "gap-2"]}>
-      {students?.map(({ firstName, lastName, id, ...rest }: Student) => {
-        return (
-          <Linker to={cardNav(id)}>
-            <ViewReportStudentCard
-              firstName={firstName}
-              lastName={lastName}
-              id={id}
-              isComplete={reports?.has(id)}
-              {...rest}
-            />
-          </Linker>
-        );
-      })}
+      {reports &&
+        students?.map(({ firstName, lastName, id, ...rest }: Student) => {
+          return (
+            <Linker to={cardNav(id)}>
+              <ViewReportStudentCard
+                firstName={firstName}
+                lastName={lastName}
+                id={id}
+                isComplete={reports?.get(id as string)}
+                {...rest}
+              />
+            </Linker>
+          );
+        })}
     </Grid>
   );
 };
 
-const getThemeClasses = (isComplete: boolean): string[] => {
-  if (isComplete) {
+const getThemeClasses = (isComplete: boolean | undefined): string[] => {
+  if (isComplete === true) {
     return ["theme-bg-complete", "theme-text-complete"];
   } else {
     return ["theme-bg-incomplete", "theme-text-incomplete"];
@@ -143,7 +145,7 @@ const ViewReportStudentCard = ({
   firstName,
   lastName,
   isComplete,
-}: Student & { isComplete: boolean }) => {
+}: Student & { isComplete: boolean | undefined }) => {
   const theme = getThemeClasses(isComplete);
   return (
     <div
