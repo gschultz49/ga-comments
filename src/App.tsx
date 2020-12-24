@@ -14,6 +14,7 @@ import ViewStudent from "./Pages/ViewStudent";
 import SignIn from "./Signin";
 import NavOptions from "./NavOptions";
 import ViewReport from "./Pages/ViewReport";
+import ViewStudentReport from "./Pages/ViewStudentReport";
 
 firebase.initializeApp({
   apiKey: "AIzaSyCwxiDrVBzpiEtz5rL9eJt6bZIdymyTQ30",
@@ -100,6 +101,9 @@ function Home() {
           of them to render at a time
         */}
       <Switch>
+        <Route path={`/class/:classID/report/:reportID/student/:studentID`}>
+          <ViewStudentReport />
+        </Route>
         <Route path={`/class/:classID/report/:reportID`}>
           <ViewReport />
         </Route>

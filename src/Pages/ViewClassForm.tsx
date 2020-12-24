@@ -133,6 +133,58 @@ const ViewClassFormProvider = () => {
 
 const StudentsSchema = Yup.object().shape(studentsValidation);
 
+const goToStudentById = (studentID: string) => `/student/${studentID}`;
+
+export const ViewStudentGrid = ({
+  students,
+  withRemoveIcon = false,
+  cardNav = goToStudentById,
+}: {
+  students: firebase.firestore.DocumentData | undefined;
+  withRemoveIcon?: boolean;
+  cardNav?: Function;
+}) => {
+  return (
+    <Grid styles={["mt-8", "sm:grid-cols-5", "gap-2"]}>
+      {students?.map(({ firstName, lastName, id }: Student) => (
+        <CardWrapper to={cardNav(id)}>
+          <React.Fragment>
+            <div className={"flex flex-col justify-center items-center "}>
+              {withRemoveIcon ? (
+                <img
+                  className="absolute top-4 right-4 h-6 w-6 text-center"
+                  src={removeIcon}
+                  alt={"remove"}
+                  onClick={(e) => {
+                    // we dont want to navigate on click of this button
+                    e.preventDefault();
+                    if (
+                      window.confirm(
+                        "Are you sure you want to delete this student from this class?"
+                      )
+                    ) {
+                      removeStudentFromClass(id);
+                    }
+                  }}
+                ></img>
+              ) : null}
+              <div className={"flex py-3"}>
+                <p>
+                  {firstName} {lastName}
+                </p>
+              </div>
+              <div className={"flex py-3"}>
+                <h1 className={"pr-2"}>View</h1>
+                <img src={linkIcon} alt={"Link Icon"}></img>
+              </div>
+            </div>
+          </React.Fragment>
+        </CardWrapper>
+      ))}
+    </Grid>
+  );
+};
+
 export const ViewClassForm = ({
   className,
   students,
@@ -215,10 +267,10 @@ export const ViewClassForm = ({
       </div>
 
       <Grid styles={["sm:grid-cols-4", "gap-32"]}>
-        {reportTypes?.map((e: ReportType) => {
-          console.log(e);
+        {reportTypes?.map((e: ReportType, idx: number) => {
           return (
             <CardWrapper
+              key={idx}
               to={`/class/${classID}/report/${e.id}`}
               Wrapper={RectangularCard}
               styles={["h-32"]}
@@ -231,41 +283,7 @@ export const ViewClassForm = ({
 
       <section className={"mt-16"}>
         <h1 className={"text-2xl"}>Students</h1>
-        <Grid styles={["mt-8", "sm:grid-cols-5", "gap-2"]}>
-          {students?.map(({ firstName, lastName, id }: Student) => (
-            <CardWrapper to={`/student/${id}`}>
-              <React.Fragment>
-                <div className={"flex flex-col justify-center items-center "}>
-                  <img
-                    className="absolute top-4 right-4 h-6 w-6 text-center"
-                    src={removeIcon}
-                    alt={"remove"}
-                    onClick={(e) => {
-                      // we dont want to navigate on click of this button
-                      e.preventDefault();
-                      if (
-                        window.confirm(
-                          "Are you sure you want to delete this student from this class?"
-                        )
-                      ) {
-                        removeStudentFromClass(id);
-                      }
-                    }}
-                  ></img>
-                  <div className={"flex py-3"}>
-                    <p>
-                      {firstName} {lastName}
-                    </p>
-                  </div>
-                  <div className={"flex py-3"}>
-                    <h1 className={"pr-2"}>View</h1>
-                    <img src={linkIcon} alt={"Link Icon"}></img>
-                  </div>
-                </div>
-              </React.Fragment>
-            </CardWrapper>
-          ))}
-        </Grid>
+        <ViewStudentGrid students={students} withRemoveIcon={true} />
       </section>
       <section className={"my-12"}>
         <Formik
