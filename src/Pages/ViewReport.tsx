@@ -20,8 +20,6 @@ const goToStudentFormById = (classID: string, reportID: string) => (
 
 const ViewReport = () => {
   let { classID, reportID }: any = useParams();
-  //   get all studentIDs in this class
-  //   for each studentID, check all reports where studentID=studentID, classID=classID, reportID=reportID
   const [students, setStudents] = useState<
     firebase.firestore.DocumentData | undefined
   >(undefined);
@@ -63,7 +61,7 @@ const ViewReport = () => {
                 .collection(REPORTS_COLLECTION)
                 .where("classID", "==", classID)
                 .where("studentID", "==", student.id)
-                .where("reportTypeID", "in", classData?.reportTypes)
+                .where("reportTypeID", "==", reportID)
                 .get();
               reportsSnapshots.forEach((report) => {
                 reportData.push(report.data());
