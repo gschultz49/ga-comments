@@ -26,3 +26,24 @@ code {
 .card-rect {
   border: 1px solid #e3e3e3;
 }
+
+:root {
+  --text-incomplete: #c05621;
+  --bg-incomplete: #feebc8;
+  --text-complete: #2f855a;
+  --bg-complete: #c6f6d5;
+}
+
+.theme-bg-incomplete {
+  background-color: var(--bg-incomplete);
+}
+.theme-text-incomplete {
+  color: var(--text-incomplete);
+}
+
+.theme-bg-complete {
+  background-color: var(--bg-complete);
+}
+.theme-text-complete {
+  color: var(--text-complete);
+}

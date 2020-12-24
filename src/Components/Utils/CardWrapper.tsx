@@ -30,6 +30,10 @@ const rectangleCardWrapperClasses = [
   ...centerFlex,
 ];
 
+export const Linker = ({ to, children }: { to: string; children: any }) => {
+  return <Link to={to}>{children}</Link>;
+};
+
 const CardWrapper = ({
   Wrapper = CircularCard,
   to,
