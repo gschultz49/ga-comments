@@ -1,10 +1,12 @@
 import clsx from "clsx";
 import firebase from "firebase";
+import { report } from "process";
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { Linker } from "../Components/Utils/CardWrapper";
 import Grid from "../Components/Utils/Grid";
-import linkIconIncomplete from "../img/linkIcon-incomplete.svg";
 import linkIconComplete from "../img/linkIcon-complete.svg";
+import linkIconIncomplete from "../img/linkIcon-incomplete.svg";
 import {
   CLASSES_COLLECTION,
   REPORTS_COLLECTION,
@@ -12,7 +14,6 @@ import {
   STUDENT_COLLECTION,
 } from "../utils";
 import { Student } from "./CreateClassForm";
-import { Linker } from "../Components/Utils/CardWrapper";
 
 const goToStudentFormById = (classID: string, reportID: string) => (
   studentID: string
@@ -120,6 +121,7 @@ const DisplayReportCards = ({
               firstName={firstName}
               lastName={lastName}
               id={id}
+              isComplete={reports?.has(id)}
               {...rest}
             />
           </Linker>
@@ -137,8 +139,11 @@ const getThemeClasses = (isComplete: boolean): string[] => {
   }
 };
 
-const ViewReportStudentCard = ({ firstName, lastName, id }: Student) => {
-  const isComplete = Math.random() > 0.5;
+const ViewReportStudentCard = ({
+  firstName,
+  lastName,
+  isComplete,
+}: Student & { isComplete: boolean }) => {
   const theme = getThemeClasses(isComplete);
   return (
     <div
