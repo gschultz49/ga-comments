@@ -1,6 +1,5 @@
 import clsx from "clsx";
 import firebase from "firebase";
-import { report } from "process";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Linker } from "../Components/Utils/CardWrapper";
@@ -80,7 +79,7 @@ const ViewReport = () => {
             setClassName(classData?.name);
           });
       });
-  }, [classID]);
+  }, [classID, reportID]);
 
   return (
     <div>
