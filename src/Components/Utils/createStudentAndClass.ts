@@ -1,4 +1,5 @@
 import { firestore } from "../../App";
+import addStudentToExistingClass from "./addStudentToExistingClass";
 import {
   modifyAndCreateTimestamp,
   REPORT_TYPES_COLLECTION,
@@ -26,6 +27,7 @@ export const DEFAULT_STUDENT = (student?: any, classID?: any): Student => ({
   gender: student?.gender || GENDER_DEFAULT,
   classID: classID ? [classID] : [],
   isActive: true,
+  isEditable: true,
   ...modifyAndCreateTimestamp(),
 });
 
@@ -52,26 +54,14 @@ export const createStudentAndClass = async ({
           return documentSnapshot.id;
         });
         const studentRefs: string[] = [];
-        const classIDRef = firestore.collection(CLASSES_COLLECTION).doc();
-        // const classIDRef = await firestore.collection(CLASSES_COLLECTION).add({
-        //   name: className,
-        //   teacherId: teacherId,
-        //   isActive: true,
-        //   classStartDate,
-        //   classEndDate,
-        //   reportTypes: reportIds,
-        //   groupType: "CLASS", // for future ideas
-        //   ...modifyAndCreateTimestamp(),
-        // });
-        const batch = firestore.batch();
-        students.forEach((student) => {
-          var docRef = firestore.collection(STUDENT_COLLECTION).doc(); //automatically generate unique id
-          studentRefs.push(docRef.id);
-          batch.set(docRef, DEFAULT_STUDENT(student, classIDRef.id));
-        });
-        await batch.commit();
+        const classDocRef = firestore.collection(CLASSES_COLLECTION).doc();
 
-        classIDRef.set({
+        addStudentToExistingClass({
+          students,
+          classID: classDocRef.id,
+        });
+
+        classDocRef.set({
           name: className,
           teacherId: teacherId,
           isActive: true,

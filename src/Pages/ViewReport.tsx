@@ -37,12 +37,16 @@ const ViewReport = () => {
     });
     getClassByID({ classID }).then((classDocumentSnapshot) => {
       const classData = classDocumentSnapshot.data();
+      console.log(classData);
       firebase
         .firestore()
         .collection(STUDENT_COLLECTION)
         .where("classID", "array-contains", classID)
         .where("isActive", "==", true)
         .onSnapshot((studentSnapshot) => {
+          // const studentData = studentSnapshot.docs.map((e) => e.data());
+          const reportData: firebase.firestore.DocumentData[] = [];
+
           studentSnapshot.forEach(async (student) => {
             // console.log(classID, student.id, classData?.reportTypes);
             const reportsSnapshots = await getReportByIDs({
@@ -50,13 +54,9 @@ const ViewReport = () => {
               studentID: student.id,
               reportTypeID,
             }).get();
-
-            const reportData: firebase.firestore.DocumentData[] = reportsSnapshots.docs.map(
-              (e) => e.data()
-            );
-            // reportsSnapshots.forEach((report) => {
-            //   reportData.push(report.data());
-            // });
+            reportsSnapshots.forEach((report) => {
+              reportData.push(report.data());
+            });
 
             setReports(
               new Map(reportData.map((e) => [e.studentID, e.isComplete]))
@@ -106,12 +106,12 @@ const DisplayReportCards = ({
       {reports &&
         students?.map(({ firstName, lastName, id, ...rest }: Student) => {
           return (
-            <Linker to={cardNav(id)}>
+            <Linker to={cardNav(id)} key={id}>
               <ViewReportStudentCard
                 firstName={firstName}
                 lastName={lastName}
                 id={id}
-                isComplete={reports?.get(id as string)}
+                isComplete={reports.get(id as string) === true}
                 {...rest}
               />
             </Linker>

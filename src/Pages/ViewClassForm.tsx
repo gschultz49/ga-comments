@@ -7,7 +7,9 @@ import { useHistory, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import StudentForm from "../Components/Students/StudentForm";
 import addStudentToExistingClass from "../Components/Utils/addStudentToExistingClass";
-import CardWrapper, { RectangularCard } from "../Components/Utils/Components/CardWrapper";
+import CardWrapper, {
+  RectangularCard,
+} from "../Components/Utils/Components/CardWrapper";
 import { Student } from "../Components/Utils/createStudentAndClass";
 import getClassAndReports from "../Components/Utils/getClassAndReports";
 import getStudentsByClassID from "../Components/Utils/getStudentsByClassID";
