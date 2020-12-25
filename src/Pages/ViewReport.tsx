@@ -3,12 +3,12 @@ import firebase from "firebase";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Linker } from "../Components/Utils/Components/CardWrapper";
+import Grid from "../Components/Utils/Components/Grid";
 import { Student } from "../Components/Utils/createStudentAndClass";
 import { getClassByID } from "../Components/Utils/getClass";
 import { getReportByIDs } from "../Components/Utils/getReport";
 import getReportType from "../Components/Utils/getReportType";
-import Grid from "../Components/Utils/Components/Grid";
-import { STUDENT_COLLECTION } from "../Components/Utils/utils";
+import getStudentsByClassID from "../Components/Utils/getStudentsByClassID";
 import linkIconComplete from "../img/linkIcon-complete.svg";
 import linkIconIncomplete from "../img/linkIcon-incomplete.svg";
 
@@ -37,36 +37,27 @@ const ViewReport = () => {
     });
     getClassByID({ classID }).then((classDocumentSnapshot) => {
       const classData = classDocumentSnapshot.data();
-      console.log(classData);
-      firebase
-        .firestore()
-        .collection(STUDENT_COLLECTION)
-        .where("classID", "array-contains", classID)
-        .where("isActive", "==", true)
-        .onSnapshot((studentSnapshot) => {
-          // const studentData = studentSnapshot.docs.map((e) => e.data());
-          const reportData: firebase.firestore.DocumentData[] = [];
-
-          studentSnapshot.forEach(async (student) => {
-            // console.log(classID, student.id, classData?.reportTypes);
-            const reportsSnapshots = await getReportByIDs({
-              classID,
-              studentID: student.id,
-              reportTypeID,
-            }).get();
-            reportsSnapshots.forEach((report) => {
-              reportData.push(report.data());
-            });
-
-            setReports(
-              new Map(reportData.map((e) => [e.studentID, e.isComplete]))
-            );
+      getStudentsByClassID({ classID }).onSnapshot((studentSnapshot) => {
+        const reportData: firebase.firestore.DocumentData[] = [];
+        studentSnapshot.forEach(async (student) => {
+          const reportsSnapshots = await getReportByIDs({
+            classID,
+            studentID: student.id,
+            reportTypeID,
+          }).get();
+          reportsSnapshots.forEach((report) => {
+            reportData.push(report.data());
           });
-          setStudents(
-            studentSnapshot.docs.map((e) => ({ ...e.data(), id: e.id }))
+          // this is inefficient, need to find a way to reliably run the update after the student iteration
+          setReports(
+            new Map(reportData.map((e) => [e.studentID, e.isComplete]))
           );
-          setClassName(classData?.name);
         });
+        setStudents(
+          studentSnapshot.docs.map((e) => ({ ...e.data(), id: e.id }))
+        );
+        setClassName(classData?.name);
+      });
     });
   }, [classID, reportTypeID]);
 
