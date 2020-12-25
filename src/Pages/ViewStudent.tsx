@@ -2,10 +2,7 @@ import firebase from "firebase";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getClassByClassIDs } from "../Components/Utils/getClass";
-import {
-  getReportsByClassAndStudent,
-  getReportsByReportType,
-} from "../Components/Utils/getReport";
+import { getReportsByClassAndStudent } from "../Components/Utils/getReport";
 import { getReportTypesByIds } from "../Components/Utils/getReportType";
 import getStudent from "../Components/Utils/getStudent";
 
@@ -99,10 +96,12 @@ const ViewStudent = () => {
           classesData.map((classs: any) => {
             return allReportsForStudentForClass.docs.map((reportRef, idx) => {
               const report = reportRef.data();
-              const reportType = allReportTypeNames.docs[idx].data();
+              const reportType = allReportTypeNames.docs
+                .find((e) => e.id === report.reportTypeID)
+                ?.data();
               return {
                 className: classs.name,
-                reportTypeName: reportType.name,
+                reportTypeName: reportType?.name,
                 reportText: report.text,
                 reportIsComplete: report.isComplete,
               };
