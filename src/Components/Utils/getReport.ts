@@ -17,4 +17,26 @@ export const getReportByIDs = ({
     .where("studentID", "==", studentID)
     .where("reportTypeID", "==", reportTypeID);
 
+export const getReportsByClassAndStudent = ({
+  classIDs,
+  studentID,
+}: {
+  classIDs: string[];
+  studentID: string;
+}) =>
+  firebase
+    .firestore()
+    .collection(REPORTS_COLLECTION)
+    .where("classID", "in", classIDs)
+    .where("studentID", "==", studentID);
+
+export const getReportsByReportType = ({
+  reportTypes,
+}: {
+  reportTypes: string[];
+}) =>
+  firebase
+    .firestore()
+    .collection(REPORTS_COLLECTION)
+    .where("reportTypeID", "in", reportTypes);
 export default getReportByIDs;
