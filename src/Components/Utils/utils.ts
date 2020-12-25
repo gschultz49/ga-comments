@@ -1,4 +1,5 @@
-import { firestore } from "./App";
+import { firestore } from "../../App";
+import { DEFAULT_STUDENT, Student } from "./createStudentAndClass";
 
 export const CLASSES_COLLECTION = "classes";
 export const STUDENT_COLLECTION = "students";
@@ -55,4 +56,15 @@ export const removeStudentFromClass = (id: string | undefined) => {
       },
       { merge: true }
     );
+};
+
+export const produceDefault = (
+  n = 1,
+  defaultObj = DEFAULT_STUDENT
+): Student[] => {
+  const defaults: Student[] = [];
+  for (let i = 0; i < n; i++) {
+    defaults.push(defaultObj());
+  }
+  return defaults;
 };

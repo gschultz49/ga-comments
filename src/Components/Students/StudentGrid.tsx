@@ -1,10 +1,10 @@
 import firebase from "firebase";
 import React from "react";
 import { useCollectionData } from "react-firebase-hooks/firestore";
-import { Student } from "../../Pages/CreateClassForm";
-import { STUDENT_COLLECTION } from "../../utils";
-import Grid from "../Utils/Grid";
+import { STUDENT_COLLECTION } from "../Utils/utils";
+import Grid from "../Utils/Components/Grid";
 import StudentCard from "./StudentCard";
+import { Student } from "../Utils/createStudentAndClass";
 
 // todo: could find a way to add this to the homepage and inner join on class + students
 const StudentListProvider = () => {

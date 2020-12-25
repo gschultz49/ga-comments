@@ -1,20 +1,20 @@
 import clsx from "clsx";
-import { FieldArray, Field, ErrorMessage } from "formik";
+import { ErrorMessage, Field, FieldArray } from "formik";
 import React from "react";
 import {
   AddStudentButton,
   InlineError,
   RemoveButton,
-  Student,
 } from "../../Pages/CreateClassForm";
-import Grid from "../Utils/Grid";
+import { Student } from "../Utils/createStudentAndClass";
+import Grid from "../Utils/Components/Grid";
 
 const StudentForm = ({ students }: { students: Student[] }) => (
   <Grid styles={["grid-cols-1", "sm:grid-cols-4"]}>
     <FieldArray name="students">
       {({ remove, push }) => (
         <React.Fragment>
-          {students.map((student: Student, index) => {
+          {students.map((student: Student, index: number) => {
             if (student.isEditable && student.isEditable === true) {
               return (
                 <React.Fragment>

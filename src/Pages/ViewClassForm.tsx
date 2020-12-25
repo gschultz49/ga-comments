@@ -5,28 +5,24 @@ import React, { useEffect, useState } from "react";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import { useHistory, useParams } from "react-router-dom";
 import * as Yup from "yup";
-import { firestore } from "../App";
 import StudentForm from "../Components/Students/StudentForm";
-import CardWrapper, { RectangularCard } from "../Components/Utils/CardWrapper";
-import Grid from "../Components/Utils/Grid";
-import linkIcon from "../img/linkIcon-dark.svg";
-import removeIcon from "../img/removeIcon.svg";
-import pencilIcon from "../img/pencilIcon.svg";
-import checkmarkIcon from "../img/checkmarkIcon-black.svg";
-
+import addStudentToExistingClass from "../Components/Utils/addStudentToExistingClass";
+import CardWrapper, { RectangularCard } from "../Components/Utils/Components/CardWrapper";
+import { Student } from "../Components/Utils/createStudentAndClass";
+import getClassAndReports from "../Components/Utils/getClassAndReports";
+import getStudentsByClassID from "../Components/Utils/getStudentsByClassID";
+import Grid from "../Components/Utils/Components/Grid";
+import updateClassName from "../Components/Utils/updateClassName";
 import {
-  CLASSES_COLLECTION,
   redirectTo,
   removeClass,
   removeStudentFromClass,
-  REPORT_TYPES_COLLECTION,
-  STUDENT_COLLECTION,
-} from "../utils";
-import {
-  createStudentObject,
-  Student,
-  studentsValidation,
-} from "./CreateClassForm";
+} from "../Components/Utils/utils";
+import checkmarkIcon from "../img/checkmarkIcon-black.svg";
+import linkIcon from "../img/linkIcon-dark.svg";
+import pencilIcon from "../img/pencilIcon.svg";
+import removeIcon from "../img/removeIcon.svg";
+import { studentsValidation } from "./CreateClassForm";
 
 // interface TeachingClass {
 //   name: string;
@@ -38,25 +34,6 @@ import {
 //   classEndDate: number;
 //   id?: string;
 // }
-
-const addStudentToExistingClass = async ({
-  students,
-  classID,
-}: {
-  students: Student[];
-  classID: string | undefined;
-}) => {
-  try {
-    const batch = firestore.batch();
-    students.forEach((student) => {
-      var studentRef = firestore.collection(STUDENT_COLLECTION).doc(); //automatically generate unique id
-      batch.set(studentRef, createStudentObject(student, classID));
-    });
-    await batch.commit();
-  } catch (err) {
-    console.error("Error inserting students", err);
-  }
-};
 
 interface ReportType {
   name: string;
@@ -74,47 +51,17 @@ const ViewClassFormProvider = () => {
   >(undefined);
 
   useEffect(() => {
-    const classAndReports = firebase
-      .firestore()
-      .doc(`${CLASSES_COLLECTION}/${classID}`)
-      // here we listen for any realtime changes to this Class
-      .onSnapshot(async (targetClassDocumentSnapshot) => {
-        // we need to get the report type ID array for this class, then look those up
-        // inside the report types collection
-        const targetClassReportTypeRows = targetClassDocumentSnapshot.get(
-          "reportTypes"
-        );
-        const reportTypesQuerySnapshot = await firebase
-          .firestore()
-          .collection(REPORT_TYPES_COLLECTION)
-          .where(
-            firebase.firestore.FieldPath.documentId(),
-            "in",
-            targetClassReportTypeRows
-          )
-          .get();
-        // once we have all the data we need, add it to the state
-        setTargetClass(targetClassDocumentSnapshot.data());
-        setReportTypes(
-          reportTypesQuerySnapshot.docs.map((e) => {
-            return {
-              id: e.id,
-              ...e.data(),
-            };
-          })
-        );
-      });
-
+    const classAndReports = getClassAndReports({
+      classID,
+      setTargetClass,
+      setReportTypes,
+    });
     return () => classAndReports();
   }, [classID]);
 
   // eslint-disable-next-line
   const [students, loading, error] = useCollectionData<Student>(
-    firebase
-      .firestore()
-      .collection(STUDENT_COLLECTION)
-      .where("classID", "array-contains", classID)
-      .where("isActive", "==", true),
+    getStudentsByClassID({ classID }),
     {
       idField: "id",
       snapshotListenOptions: { includeMetadataChanges: true },
@@ -217,18 +164,12 @@ export const ViewClassForm = ({
                 className={"cursor-pointer"}
                 src={checkmarkIcon}
                 alt={"Check Icon"}
-                onClick={(e) => {
+                onClick={async (e) => {
                   setIsEditable((prev) => !prev);
-                  firebase
-                    .firestore()
-                    .doc(`${CLASSES_COLLECTION}/${classID}`)
-                    .set(
-                      {
-                        name: editingClassName,
-                      },
-                      { merge: true }
-                    );
-
+                  await updateClassName({
+                    classID,
+                    editingClassName,
+                  });
                   console.log("switch to read only mode");
                 }}
               ></img>
@@ -271,7 +212,7 @@ export const ViewClassForm = ({
           return (
             <CardWrapper
               key={idx}
-              to={`/class/${classID}/report/${e.id}`}
+              to={`/class/${classID}/reportType/${e.id}`}
               Wrapper={RectangularCard}
               styles={["h-32"]}
             >
@@ -289,7 +230,6 @@ export const ViewClassForm = ({
         <Formik
           initialValues={{ students: [] }}
           onSubmit={async (values, { resetForm }) => {
-            console.log("submitted", values);
             await addStudentToExistingClass({
               students: values.students,
               classID: classID,

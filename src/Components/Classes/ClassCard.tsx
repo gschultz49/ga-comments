@@ -1,6 +1,6 @@
 import React from "react";
 import { useRouteMatch } from "react-router-dom";
-import CardWrapper from "../Utils/CardWrapper";
+import CardWrapper from "../Utils/Components/CardWrapper";
 
 export interface IClassCard {
   name: string;

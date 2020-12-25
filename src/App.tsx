@@ -101,10 +101,12 @@ function Home() {
           of them to render at a time
         */}
       <Switch>
-        <Route path={`/class/:classID/report/:reportID/student/:studentID`}>
+        <Route
+          path={`/class/:classID/reportType/:reportTypeID/student/:studentID`}
+        >
           <ViewStudentReport />
         </Route>
-        <Route path={`/class/:classID/report/:reportID`}>
+        <Route path={`/class/:classID/reportType/:reportTypeID`}>
           <ViewReport />
         </Route>
         <Route path={`/class/createClass`}>

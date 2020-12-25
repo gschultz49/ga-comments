@@ -2,7 +2,7 @@ import { auth } from "./App";
 import logout from "./img/logout.svg";
 import home from "./img/homeIcon.svg";
 import { useHistory } from "react-router-dom";
-import { redirectTo } from "./utils";
+import { redirectTo } from "./Components/Utils/utils";
 import backButton from "./img/backButton.svg";
 
 export function SignOut() {
