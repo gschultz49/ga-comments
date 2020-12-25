@@ -1,10 +1,9 @@
 import { firestore } from "../../App";
 import addStudentToExistingClass from "./addStudentToExistingClass";
 import {
+  CLASSES_COLLECTION,
   modifyAndCreateTimestamp,
   REPORT_TYPES_COLLECTION,
-  CLASSES_COLLECTION,
-  STUDENT_COLLECTION,
 } from "./utils";
 
 export interface Student {

@@ -4,6 +4,7 @@ import home from "./img/homeIcon.svg";
 import { useHistory } from "react-router-dom";
 import { redirectTo } from "./Components/Utils/utils";
 import backButton from "./img/backButton.svg";
+import clsx from "clsx";
 
 export function SignOut() {
   return (
@@ -17,11 +18,13 @@ export function SignOut() {
 export const NavItemContainer = ({
   onClick = () => auth.signOut(),
   children,
+  styles = [],
 }: any) => (
   <div
-    className={
-      "flex cursor-pointer hover:bg-gray-200 m-4 p-2 rounded-full p-1 space-x-2 items-center"
-    }
+    className={clsx(
+      "flex cursor-pointer hover:bg-gray-200 m-4 p-2 rounded-full p-1 space-x-2 items-center",
+      ...styles
+    )}
     onClick={onClick}
   >
     {children}
@@ -45,7 +48,10 @@ export const GoBackButton = () => {
 export const HomeButton = () => {
   const history = useHistory();
   return (
-    <NavItemContainer onClick={() => redirectTo(history, "/")}>
+    <NavItemContainer
+      onClick={() => redirectTo(history, "/")}
+      styles={["hidden sm:flex"]}
+    >
       <img
         src={home}
         alt="home navigation button"

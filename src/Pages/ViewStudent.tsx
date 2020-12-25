@@ -9,10 +9,11 @@ const ViewStudent = () => {
   const [student, setStudent] = useState<
     firebase.firestore.DocumentData | undefined
   >(undefined);
+  // eslint-disable-next-line
   const [classes, setClasses] = useState<
     firebase.firestore.DocumentData | undefined
   >(undefined);
-
+  // eslint-disable-next-line
   const [reports, setReports] = useState<
     firebase.firestore.DocumentData | undefined
   >(undefined);

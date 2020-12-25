@@ -41,10 +41,12 @@ function App() {
 
   return (
     <Router>
-      <div className="App mx-8">
+      <div className="App mx-6 sm:mx-8">
         {user ? (
-          <div className={"flex justify-between items-center"}>
-            <div className={"flex  items-center"}>
+          <div
+            className={"flex justify-center sm:justify-between items-center"}
+          >
+            <div className={"flex hidden sm:flex  items-center"}>
               <img
                 src={user?.photoURL ?? ""}
                 alt={"Profile Pic"}
