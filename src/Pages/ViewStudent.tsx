@@ -181,7 +181,7 @@ const ViewStudent = () => {
   }, [studentID]);
   return (
     <div>
-      {student ? (
+      {student && student.isActive ? (
         <React.Fragment>
           <div>
             <h1>
@@ -212,7 +212,11 @@ const ViewStudent = () => {
             </div>
           </div>
         </React.Fragment>
-      ) : null}
+      ) : (
+        <div>
+          <h1>This student has been deleted</h1>
+        </div>
+      )}
     </div>
   );
 };

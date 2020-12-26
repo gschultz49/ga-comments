@@ -74,6 +74,7 @@ const ViewClassFormProvider = () => {
     <ViewClassForm
       classID={classID}
       className={targetClass?.name}
+      classIsActive={targetClass?.isActive}
       students={students}
       reportTypes={reportTypes}
     />
@@ -140,16 +141,25 @@ export const ViewClassForm = ({
   className,
   students,
   reportTypes,
+  classIsActive,
   classID,
 }: {
   className: string | undefined;
   students: firebase.firestore.DocumentData | undefined;
   reportTypes: firebase.firestore.DocumentData | undefined;
+  classIsActive: boolean;
   classID: string | undefined;
 }) => {
   const history = useHistory();
   const [editingClassName, setEditingClassName] = useState("");
   const [isEditable, setIsEditable] = useState(false);
+  if (classIsActive === false) {
+    return (
+      <div>
+        <h1>This class has been deleted</h1>
+      </div>
+    );
+  }
   return (
     <React.Fragment>
       <div className="flex justify-between my-5">
