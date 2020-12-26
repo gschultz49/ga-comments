@@ -68,7 +68,7 @@ export const createStudentAndClass = async ({
           classEndDate,
           reportTypes: reportIds,
           groupType: "CLASS", // for future ideas
-          studentID: studentRefs,
+          studentID: studentRefs, //
           ...modifyAndCreateTimestamp(),
         });
       });

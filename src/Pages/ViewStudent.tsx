@@ -80,7 +80,11 @@ const ViewStudent = () => {
         );
         // console.log(classesData);
 
-        // const allReportTypeNames = new Map();
+        console.log(allReportsForStudentForClass.docs);
+
+        if (allReportsForStudentForClass.docs.length == 0) {
+          return;
+        }
 
         const allReportTypeNames = await getReportTypesByIds({
           reportTypes: allReportsForStudentForClass.docs.map(
