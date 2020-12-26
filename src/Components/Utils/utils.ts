@@ -1,4 +1,3 @@
-import firebase from "firebase";
 import { firestore } from "../../App";
 import { DEFAULT_STUDENT, Student } from "./createStudentAndClass";
 

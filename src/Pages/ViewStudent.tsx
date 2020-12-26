@@ -84,7 +84,7 @@ const ViewStudent = () => {
 
         console.log(allReportsForStudentForClass.docs);
 
-        if (allReportsForStudentForClass.docs.length == 0) {
+        if (allReportsForStudentForClass.docs.length === 0) {
           return;
         }
 

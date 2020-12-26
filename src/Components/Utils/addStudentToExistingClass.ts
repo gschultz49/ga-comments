@@ -1,5 +1,4 @@
 import firebase from "firebase";
-import { firestore } from "../../App";
 import { DEFAULT_STUDENT, Student } from "./createStudentAndClass";
 import { CLASSES_COLLECTION, STUDENT_COLLECTION } from "./utils";
 
