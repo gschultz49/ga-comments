@@ -12,7 +12,7 @@ import getStudentsByClassID from "../Components/Utils/getStudentsByClassID";
 import linkIconComplete from "../img/linkIcon-complete.svg";
 import linkIconIncomplete from "../img/linkIcon-incomplete.svg";
 
-const goToStudentFormById = (classID: string, reportTypeID: string) => (
+export const goToStudentFormById = (classID: string, reportTypeID: string) => (
   studentID: string
 ) => `/class/${classID}/reportType/${reportTypeID}/student/${studentID}`;
 

@@ -88,10 +88,12 @@ export const ViewStudentGrid = ({
   students,
   withRemoveIcon = false,
   cardNav = goToStudentById,
+  classID,
 }: {
   students: firebase.firestore.DocumentData | undefined;
   withRemoveIcon?: boolean;
   cardNav?: Function;
+  classID: string | undefined;
 }) => {
   return (
     <Grid styles={["mt-8", "sm:grid-cols-5", "gap-2"]}>
@@ -112,7 +114,7 @@ export const ViewStudentGrid = ({
                         "Are you sure you want to delete this student from this class?"
                       )
                     ) {
-                      removeStudentFromClass(id);
+                      removeStudentFromClass(id, classID);
                     }
                   }}
                 ></img>
@@ -226,7 +228,11 @@ export const ViewClassForm = ({
 
       <section className={"mt-16"}>
         <h1 className={"text-2xl"}>Students</h1>
-        <ViewStudentGrid students={students} withRemoveIcon={true} />
+        <ViewStudentGrid
+          students={students}
+          withRemoveIcon={true}
+          classID={classID}
+        />
       </section>
       <section className={"my-12"}>
         <Formik

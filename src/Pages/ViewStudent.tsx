@@ -1,10 +1,12 @@
 import firebase from "firebase";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Linker } from "../Components/Utils/Components/CardWrapper";
 import { getClassByClassIDs } from "../Components/Utils/getClass";
 import { getReportsByClassAndStudent } from "../Components/Utils/getReport";
 import { getReportTypesByIds } from "../Components/Utils/getReportType";
 import getStudent from "../Components/Utils/getStudent";
+import { goToStudentFormById } from "./ViewReport";
 
 const ViewStudent = () => {
   let { studentID }: any = useParams();
@@ -86,28 +88,38 @@ const ViewStudent = () => {
           return;
         }
 
-        const allReportTypeNames = await getReportTypesByIds({
+        const allReportTypeNamesQuery = await getReportTypesByIds({
           reportTypes: allReportsForStudentForClass.docs.map(
             (e) => e.data().reportTypeID
           ),
         });
-        console.log(
-          "ReportTypes: ",
-          allReportTypeNames.docs.map((e) => e.data())
+
+        const allReportTypeNames: any[] = allReportTypeNamesQuery.docs.map(
+          (e) => ({
+            id: e.id,
+            ...e.data(),
+          })
         );
+
+        console.log("ReportTypes: ", allReportTypeNames);
 
         setReportInformation(
           classesData.map((classs: any) => {
             return allReportsForStudentForClass.docs.map((reportRef, idx) => {
               const report = reportRef.data();
-              const reportType = allReportTypeNames.docs
-                .find((e) => e.id === report.reportTypeID)
-                ?.data();
+              const reportType = allReportTypeNames.find(
+                (e) => e.id === report.reportTypeID
+              );
+              // /class/McAsQovKn7LgtaXahNbN
+              // /reportType/QNb2giqVN8svkyQYe2iJ
+              // /student/iUpg0r6Id2xNhqMJbxqe
+              console.log(classs.id, reportType, studentID);
               return {
                 className: classs.name,
-                reportTypeName: reportType?.name,
+                reportTypeName: reportType.name,
                 reportText: report.text,
                 reportIsComplete: report.isComplete,
+                to: goToStudentFormById(classs.id, reportType?.id)(studentID),
               };
             });
           })
@@ -184,14 +196,16 @@ const ViewStudent = () => {
               {reportInformation?.map((classs: any) => {
                 return classs.map((i: any) => {
                   return (
-                    <div className={"pr-8"}>
-                      <h1>
-                        {i.className} - {i.reportTypeName} :{" "}
-                        {i.reportIsComplete ? "Complete" : "Incomplete"}
-                      </h1>
+                    <Linker to={i.to}>
+                      <div className={"pr-8"}>
+                        <h1>
+                          {i.className} - {i.reportTypeName} :{" "}
+                          {i.reportIsComplete ? "Complete" : "Incomplete"}
+                        </h1>
 
-                      <p>{i.reportText}</p>
-                    </div>
+                        <p>{i.reportText}</p>
+                      </div>
+                    </Linker>
                   );
                 });
               })}

@@ -9,6 +9,7 @@ interface Report {
   text: string;
 }
 
+export const DEFAULT_REPORT_TEXT = "N/A";
 export const DEFAULT_REPORT = ({
   classID,
   reportTypeID,
@@ -18,7 +19,7 @@ export const DEFAULT_REPORT = ({
   reportTypeID,
   studentID,
   isComplete: false,
-  text: "N/A",
+  text: DEFAULT_REPORT_TEXT,
 });
 
 export const createReport = ({

@@ -30,7 +30,7 @@ const CreateClassForm = () => {
   const [user] = useAuthState(auth);
   const history = useHistory();
 
-  const studentsData = produceDefault(3);
+  const studentsData = produceDefault(2);
   const { classStartDate, classEndDate } = getClassDates();
   const [students] = useState<Student[]>(
     studentsData.map((e) => ({ isEditable: true, ...e }))
