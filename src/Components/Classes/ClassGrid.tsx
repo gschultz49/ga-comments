@@ -15,8 +15,8 @@ const ClassGridProvider = ({
     firebase
       .firestore()
       .collection(CLASSES_COLLECTION)
-      .where("teacherId", "==", teacherId)
-      .orderBy("createdAt", "desc"),
+      .where("teacherId", "==", teacherId),
+    // .orderBy("createdAt", "desc"),
     {
       idField: "id",
       snapshotListenOptions: { includeMetadataChanges: true },

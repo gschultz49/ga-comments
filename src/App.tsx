@@ -34,6 +34,8 @@ const useEmulatorMode = process.env.NODE_ENV !== "production";
 if (useEmulatorMode) {
   console.log("CONNECTING TO EMULATOR");
   firestore.useEmulator("localhost", 8080);
+} else {
+  console.log("CONNECTING TO PROD");
 }
 
 function App() {
