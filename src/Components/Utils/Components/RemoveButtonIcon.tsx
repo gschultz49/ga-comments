@@ -1,4 +1,4 @@
-import removeButton from "../../img/remove_button.svg";
+import removeButton from "../../../img/remove_button.svg";
 const RemoveButtonIcon = () => (
   <img
     src={removeButton}

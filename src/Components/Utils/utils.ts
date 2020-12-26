@@ -1,4 +1,5 @@
-import { firestore } from "./App";
+import { firestore } from "../../App";
+import { DEFAULT_STUDENT, Student } from "./createStudentAndClass";
 
 export const CLASSES_COLLECTION = "classes";
 export const STUDENT_COLLECTION = "students";
@@ -44,15 +45,38 @@ export const removeClass = (id: string | undefined) => {
   setIsActive(CLASSES_COLLECTION, id, false);
 };
 
-export const removeStudentFromClass = (id: string | undefined) => {
-  firestore
-    .collection("students")
-    .doc(id)
-    .set(
-      {
-        classID: "",
-        ...modifyTimestamp(),
-      },
-      { merge: true }
-    );
+export const removeStudentFromClass = (
+  id: string | undefined,
+  classID: string | undefined
+) => {
+  setIsActive(STUDENT_COLLECTION, id, false);
+  // firebase
+  //   .firestore()
+  //   .collection(STUDENT_COLLECTION)
+  //   .doc(id)
+  //   .set(
+  //     {
+  //       classID: [],
+  //       ...modifyTimestamp(),
+  //     },
+  //     { merge: true }
+  //   );
+  // firebase
+  //   .firestore()
+  //   .collection(CLASSES_COLLECTION)
+  //   .doc(classID)
+  //   .set({
+  //     studentID: firebase.firestore.FieldValue.arrayRemove(id),
+  //   });
+};
+
+export const produceDefault = (
+  n = 1,
+  defaultObj = DEFAULT_STUDENT
+): Student[] => {
+  const defaults: Student[] = [];
+  for (let i = 0; i < n; i++) {
+    defaults.push(defaultObj());
+  }
+  return defaults;
 };

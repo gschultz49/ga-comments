@@ -4,48 +4,16 @@ import React, { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
-import { auth, firestore } from "../App";
+import { auth } from "../App";
 import StudentForm, {
   FloatingLabelInput,
 } from "../Components/Students/StudentForm";
-import RemoveButtonIcon from "../Components/Utils/RemoveButtonIcon";
 import {
-  CLASSES_COLLECTION,
-  modifyAndCreateTimestamp,
-  redirectTo,
-  REPORT_TYPES_COLLECTION,
-  STUDENT_COLLECTION,
-} from "../utils";
-
-export interface Student {
-  firstName: string;
-  lastName: string;
-  gender: string;
-  classID: string[];
-  isEditable?: boolean;
-  id?: string;
-  isActive?: boolean;
-}
-
-const FIRST_NAME_DEFAULT = "";
-const LAST_NAME_DEFAULT = "";
-const GENDER_DEFAULT = "";
-
-const DEFAULT_STUDENT = (): Student => ({
-  firstName: FIRST_NAME_DEFAULT,
-  lastName: LAST_NAME_DEFAULT,
-  gender: GENDER_DEFAULT,
-  classID: [],
-  isEditable: true,
-});
-
-const produceDefaults = (n = 1, defaultObj = DEFAULT_STUDENT): Student[] => {
-  const defaults: Student[] = [];
-  for (let i = 0; i < n; i++) {
-    defaults.push(defaultObj());
-  }
-  return defaults;
-};
+  createStudentAndClass,
+  Student,
+} from "../Components/Utils/createStudentAndClass";
+import RemoveButtonIcon from "../Components/Utils/Components/RemoveButtonIcon";
+import { produceDefault, redirectTo } from "../Components/Utils/utils";
 
 const getClassDates = (
   todaysDate = new Date()
@@ -62,9 +30,11 @@ const CreateClassForm = () => {
   const [user] = useAuthState(auth);
   const history = useHistory();
 
-  const studentsData = produceDefaults(3);
+  const studentsData = produceDefault(2);
   const { classStartDate, classEndDate } = getClassDates();
-  const [students] = useState<Student[]>(studentsData); // come from some network request
+  const [students] = useState<Student[]>(
+    studentsData.map((e) => ({ isEditable: true, ...e }))
+  );
   return (
     <section>
       <Formik
@@ -75,14 +45,14 @@ const CreateClassForm = () => {
           classEndDate,
         }}
         onSubmit={async (values) => {
-          createStudentAndClass({
+          await createStudentAndClass({
             students: values.students,
             className: values.className,
             classStartDate: values.classStartDate,
             classEndDate: values.classEndDate,
             teacherId: user?.uid,
-            history: history,
           });
+          redirectTo(history, "/");
         }}
         validationSchema={FormSchema}
       >
@@ -156,18 +126,6 @@ export const RemoveButton = ({
   );
 };
 
-export const createStudentObject = (student: any, classID: any) => ({
-  firstName: student.firstName,
-  lastName: student.lastName,
-  gender: student.gender,
-  classID: [classID],
-  isActive: true,
-  // Using the reference data type is apparently more inconvenient than strings rn...
-  //   https://stackoverflow.com/questions/46568850/what-is-firebase-firestore-reference-data-type-good-for
-  //   classID: firestore.doc(`${CLASSES_COLLECTION}/${classIDRef.id}`),
-  ...modifyAndCreateTimestamp(),
-});
-
 /**
  * Handles the Submission of a class and its students
  *
@@ -183,56 +141,6 @@ export const createStudentObject = (student: any, classID: any) => ({
  *   history,
  * }
  */
-const createStudentAndClass = async ({
-  students,
-  className,
-  teacherId,
-  classStartDate,
-  classEndDate,
-  history,
-}: {
-  students: Student[];
-  className: string;
-  teacherId: string | undefined;
-  classStartDate: number;
-  classEndDate: number;
-  history: any; // react router type
-}) => {
-  try {
-    await firestore
-      .collection(REPORT_TYPES_COLLECTION)
-      .where("groupType", "==", "CLASS")
-      .get()
-      .then(async function (snapshot) {
-        const reportIds = snapshot.docs.map(function (documentSnapshot) {
-          return documentSnapshot.id;
-        });
-        const classIDRef = await firestore.collection(CLASSES_COLLECTION).add({
-          name: className,
-          teacherId: teacherId,
-          isActive: true,
-          classStartDate,
-          classEndDate,
-          reportTypes: reportIds,
-          groupType: "CLASS", // for future ideas
-          ...modifyAndCreateTimestamp(),
-        });
-        try {
-          const batch = firestore.batch();
-          students.forEach((student) => {
-            var docRef = firestore.collection(STUDENT_COLLECTION).doc(); //automatically generate unique id
-            batch.set(docRef, createStudentObject(student, classIDRef.id));
-          });
-          await batch.commit();
-        } catch (err) {
-          console.error("Error inserting students", err);
-        }
-      });
-  } catch (err) {
-    console.error("Error inserting class", err);
-  }
-  redirectTo(history, "/");
-};
 
 export const InlineError = ({ text }: { text: string }) => (
   <i className="text-red-700">{text}</i>
@@ -282,7 +190,7 @@ export const AddStudentButton = ({ push }: { push: any }) => {
   return (
     <div
       onClick={(e) => {
-        push(...produceDefaults(1));
+        push(...produceDefault(1));
       }}
       className={clsx(["cursor-pointer"])}
     >

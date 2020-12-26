@@ -41,10 +41,12 @@ function App() {
 
   return (
     <Router>
-      <div className="App mx-8">
+      <div className="App mx-6 sm:mx-8">
         {user ? (
-          <div className={"flex justify-between items-center"}>
-            <div className={"flex  items-center"}>
+          <div
+            className={"flex justify-center sm:justify-between items-center"}
+          >
+            <div className={"flex hidden sm:flex  items-center"}>
               <img
                 src={user?.photoURL ?? ""}
                 alt={"Profile Pic"}
@@ -101,10 +103,12 @@ function Home() {
           of them to render at a time
         */}
       <Switch>
-        <Route path={`/class/:classID/report/:reportID/student/:studentID`}>
+        <Route
+          path={`/class/:classID/reportType/:reportTypeID/student/:studentID`}
+        >
           <ViewStudentReport />
         </Route>
-        <Route path={`/class/:classID/report/:reportID`}>
+        <Route path={`/class/:classID/reportType/:reportTypeID`}>
           <ViewReport />
         </Route>
         <Route path={`/class/createClass`}>

@@ -1,8 +1,8 @@
 import firebase from "firebase";
 import React from "react";
 import { useCollectionData } from "react-firebase-hooks/firestore";
-import { CLASSES_COLLECTION } from "../../utils";
-import Grid from "../Utils/Grid";
+import { CLASSES_COLLECTION } from "../Utils/utils";
+import Grid from "../Utils/Components/Grid";
 import ClassCardProvider, { IClassCard } from "./ClassCard";
 import CreateClassCardProvider from "./CreateClassCard";
 
@@ -15,7 +15,8 @@ const ClassGridProvider = ({
     firebase
       .firestore()
       .collection(CLASSES_COLLECTION)
-      .where("teacherId", "==", teacherId),
+      .where("teacherId", "==", teacherId)
+      .orderBy("createdAt", "desc"),
     {
       idField: "id",
       snapshotListenOptions: { includeMetadataChanges: true },

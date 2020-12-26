@@ -1,6 +1,6 @@
 import React from "react";
-import { Student } from "../../Pages/CreateClassForm";
-import CardWrapper from "../Utils/CardWrapper";
+import CardWrapper from "../Utils/Components/CardWrapper";
+import { Student } from "../Utils/createStudentAndClass";
 
 const StudentCard = ({ firstName, lastName, gender, id }: Student) => {
   return (

@@ -1,6 +1,6 @@
 import React from "react";
 import { useRouteMatch } from "react-router-dom";
-import CardWrapper from "../Utils/CardWrapper";
+import CardWrapper from "../Utils/Components/CardWrapper";
 import cross from "../../img/Cross.svg";
 
 export const CreateClassCard = ({ toPath }: { toPath: string }) => {
