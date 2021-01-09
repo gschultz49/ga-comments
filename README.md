@@ -1,6 +1,6 @@
 # GA-Comments
 
-Student Progress Monitoring. Register students, track their interim reports, and expedite report generation with a custom interface.
+Education management platform. Register students and classes, track their interim reports, and expedite report generation with a custom interface.
 
 # Installation
 
